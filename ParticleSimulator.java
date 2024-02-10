@@ -4,24 +4,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ParticleSimulator extends JFrame {
-    private static final int WIDTH = 1280;
-    private static final int HEIGHT = 720;
+    private static final int CANVAS_WIDTH = 1280;
+    private static final int CANVAS_HEIGHT = 720;
+    private static final int FRAME_WIDTH = CANVAS_WIDTH;
+    private static final int FRAME_HEIGHT = CANVAS_HEIGHT + 20;
     private Canvas canvas;
-
     public ParticleSimulator() {
-        setTitle("Particle Physics Simulator");
-        setSize(WIDTH, HEIGHT);
+        setTitle("Particle Simulator");
+        setSize(FRAME_WIDTH, FRAME_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         canvas = new Canvas();
-        canvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         JButton addParticleButton = new JButton("Add Particle");
+        // Handles dialog box for Add Particle
         addParticleButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Show input dialog for particle parameters
                 JPanel particlePanel = new JPanel(new GridLayout(4, 2));
                 particlePanel.add(new JLabel("X coordinate:"));
                 JTextField xField = new JTextField(10);
@@ -49,6 +50,7 @@ public class ParticleSimulator extends JFrame {
         });
 
         JButton addWallButton = new JButton("Add Wall");
+        // Handles dialog box for Add Wall
         addWallButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

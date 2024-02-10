@@ -7,5 +7,4 @@ public class Main {
             simulator.add(new Canvas());
         });
     }
-
 }

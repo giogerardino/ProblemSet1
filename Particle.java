@@ -9,4 +9,28 @@ public class Particle {
         this.angle = angle;
         this.velocity = velocity;
     }
+    public void setX(double x) {
+        this.x = x;
+    }
+    public void setY(double y) {
+        this.y = y;
+    }
+    public void setAngle(double angle) {
+        this.angle = angle;
+    }
+    public void setVelocity(double velocity) {
+        this.velocity = velocity;
+    }
+    public double getX() {
+        return x;
+    }
+    public double getY() {
+        return y;
+    }
+    public double getAngle() {
+        return angle;
+    }
+    public double getVelocity() {
+        return velocity;
+    }
 }
