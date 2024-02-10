@@ -1,7 +1,7 @@
 public class Particle {
-    public double x, y; // position
-    public double angle; // in degrees
-    public double velocity; // in pixels per second
+    private double x, y; // coordinates
+    private double angle; // in degrees
+    private double velocity; // in pixels per second
 
     public Particle(double x, double y, double angle, double velocity) {
         this.x = x;
@@ -9,6 +9,4 @@ public class Particle {
         this.angle = angle;
         this.velocity = velocity;
     }
-
-    // Getters and setters
 }
