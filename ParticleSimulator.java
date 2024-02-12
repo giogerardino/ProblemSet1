@@ -6,9 +6,20 @@ import java.awt.event.ActionListener;
 public class ParticleSimulator extends JFrame {
     private static final int CANVAS_WIDTH = 1280;
     private static final int CANVAS_HEIGHT = 720;
-    private static final int FRAME_WIDTH = CANVAS_WIDTH;
-    private static final int FRAME_HEIGHT = CANVAS_HEIGHT + 20;
+    private static final int FRAME_WIDTH = CANVAS_WIDTH + 20;
+    private static final int FRAME_HEIGHT = CANVAS_HEIGHT + 100;
+
     private Canvas canvas;
+    private JTextField particleXField;
+    private JTextField particleYField;
+    private JTextField particleAngleField;
+    private JTextField particleVelocityField;
+    private JTextField particleCountField;
+    private JTextField wallX1Field;
+    private JTextField wallY1Field;
+    private JTextField wallX2Field;
+    private JTextField wallY2Field;
+
     public ParticleSimulator() {
         setTitle("Particle Simulator");
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
@@ -18,75 +29,94 @@ public class ParticleSimulator extends JFrame {
         canvas = new Canvas();
         canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
+        // input fields for adding particles
+        JLabel particleLabel = new JLabel("Particle Parameters:");
+        particleXField = new JTextField(5);
+        particleYField = new JTextField(5);
+        particleAngleField = new JTextField(5);
+        particleVelocityField = new JTextField(5);
+        particleCountField = new JTextField(5);
         JButton addParticleButton = new JButton("Add Particle");
-        // Handles dialog box for Add Particle
         addParticleButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JPanel particlePanel = new JPanel(new GridLayout(4, 2));
-                particlePanel.add(new JLabel("X coordinate:"));
-                JTextField xField = new JTextField(10);
-                particlePanel.add(xField);
-                particlePanel.add(new JLabel("Y coordinate:"));
-                JTextField yField = new JTextField(10);
-                particlePanel.add(yField);
-                particlePanel.add(new JLabel("Angle (in degrees):"));
-                JTextField angleField = new JTextField(10);
-                particlePanel.add(angleField);
-                particlePanel.add(new JLabel("Velocity (in pixels/second):"));
-                JTextField velocityField = new JTextField(10);
-                particlePanel.add(velocityField);
-
-                int result = JOptionPane.showConfirmDialog(null, particlePanel,
-                        "Enter Particle Parameters", JOptionPane.OK_CANCEL_OPTION);
-                if (result == JOptionPane.OK_OPTION) {
-                    double x = Double.parseDouble(xField.getText());
-                    double y = Double.parseDouble(yField.getText());
-                    double angle = Double.parseDouble(angleField.getText());
-                    double velocity = Double.parseDouble(velocityField.getText());
+                double x = Double.parseDouble(particleXField.getText());
+                double y = Double.parseDouble(particleYField.getText());
+                double angle = Double.parseDouble(particleAngleField.getText());
+                double velocity = Double.parseDouble(particleVelocityField.getText());
+                int count = Integer.parseInt(particleCountField.getText());
+                for (int i = 0; i < count; i++) {
                     canvas.addParticle(x, y, angle, velocity);
                 }
             }
         });
 
+        // input fields for adding walls
+        JLabel wallLabel = new JLabel("Wall Parameters:");
+        wallX1Field = new JTextField(5);
+        wallY1Field = new JTextField(5);
+        wallX2Field = new JTextField(5);
+        wallY2Field = new JTextField(5);
         JButton addWallButton = new JButton("Add Wall");
-        // Handles dialog box for Add Wall
         addWallButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Show input dialog for wall parameters
-                JPanel wallPanel = new JPanel(new GridLayout(2, 2));
-                wallPanel.add(new JLabel("X1 coordinate:"));
-                JTextField x1Field = new JTextField(10);
-                wallPanel.add(x1Field);
-                wallPanel.add(new JLabel("Y1 coordinate:"));
-                JTextField y1Field = new JTextField(10);
-                wallPanel.add(y1Field);
-                wallPanel.add(new JLabel("X2 coordinate:"));
-                JTextField x2Field = new JTextField(10);
-                wallPanel.add(x2Field);
-                wallPanel.add(new JLabel("Y2 coordinate:"));
-                JTextField y2Field = new JTextField(10);
-                wallPanel.add(y2Field);
-
-                int result = JOptionPane.showConfirmDialog(null, wallPanel,
-                        "Enter Wall Parameters", JOptionPane.OK_CANCEL_OPTION);
-                if (result == JOptionPane.OK_OPTION) {
-                    int x1 = Integer.parseInt(x1Field.getText());
-                    int y1 = Integer.parseInt(y1Field.getText());
-                    int x2 = Integer.parseInt(x2Field.getText());
-                    int y2 = Integer.parseInt(y2Field.getText());
-                    canvas.addWall(x1, y1, x2, y2);
-                }
+                int x1 = Integer.parseInt(wallX1Field.getText());
+                int y1 = Integer.parseInt(wallY1Field.getText());
+                int x2 = Integer.parseInt(wallX2Field.getText());
+                int y2 = Integer.parseInt(wallY2Field.getText());
+                canvas.addWall(x1, y1, x2, y2);
             }
         });
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(addParticleButton);
-        buttonPanel.add(addWallButton);
+        // Particle input panel
+        JPanel particleInputPanel = new JPanel();
+        particleInputPanel.setLayout(new GridLayout(2, 1));
+        JPanel particleFieldsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        particleFieldsPanel.add(new JLabel("X:"));
+        particleFieldsPanel.add(particleXField);
+        particleFieldsPanel.add(new JLabel("Y:"));
+        particleFieldsPanel.add(particleYField);
+        particleFieldsPanel.add(new JLabel("Angle:"));
+        particleFieldsPanel.add(particleAngleField);
+        particleFieldsPanel.add(new JLabel("Velocity:"));
+        particleFieldsPanel.add(particleVelocityField);
+        particleFieldsPanel.add(new JLabel("Count:"));
+        particleFieldsPanel.add(particleCountField);
+        particleInputPanel.add(particleFieldsPanel);
 
-        add(canvas, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+        // Wall input panel
+        JPanel wallInputPanel = new JPanel();
+        wallInputPanel.setLayout(new GridLayout(2, 1));
+        JPanel wallFieldsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        wallFieldsPanel.add(new JLabel("X1:"));
+        wallFieldsPanel.add(wallX1Field);
+        wallFieldsPanel.add(new JLabel("Y1:"));
+        wallFieldsPanel.add(wallY1Field);
+        wallFieldsPanel.add(new JLabel("X2:"));
+        wallFieldsPanel.add(wallX2Field);
+        wallFieldsPanel.add(new JLabel("Y2:"));
+        wallFieldsPanel.add(wallY2Field);
+        wallInputPanel.add(wallFieldsPanel);
+
+        // Particle button panel
+        JPanel particleButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        particleButtonPanel.add(addParticleButton);
+
+        // Wall button panel
+        JPanel wallButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        wallButtonPanel.add(addWallButton);
+
+        JPanel contentPane = new JPanel(new BorderLayout());
+        JPanel bottomPanel = new JPanel(new GridLayout(2, 2));
+        bottomPanel.add(particleInputPanel);
+        bottomPanel.add(particleButtonPanel);
+        bottomPanel.add(wallInputPanel);
+        bottomPanel.add(wallButtonPanel);
+        contentPane.add(canvas, BorderLayout.CENTER);
+        contentPane.add(bottomPanel, BorderLayout.SOUTH);
+        setContentPane(contentPane);
+
         setVisible(true);
     }
 
