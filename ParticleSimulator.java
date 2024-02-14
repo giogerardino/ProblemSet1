@@ -6,8 +6,8 @@ import java.awt.event.ActionListener;
 public class ParticleSimulator extends JFrame {
     private static final int CANVAS_WIDTH = 1280;
     private static final int CANVAS_HEIGHT = 720;
-    private static final int FRAME_WIDTH = CANVAS_WIDTH + 20;
-    private static final int FRAME_HEIGHT = CANVAS_HEIGHT + 100;
+    private static final int FRAME_WIDTH = CANVAS_WIDTH + 200;
+    private static final int FRAME_HEIGHT = CANVAS_HEIGHT + 200;
 
     private Canvas canvas;
 
@@ -151,29 +151,42 @@ public class ParticleSimulator extends JFrame {
         JPanel particleInputPanel1 = createParticleInputPanel("Case 1: ",
                 new JTextField[]{numberOfParticlesField, startPointXField, startPointYField,
                         endPointXField, endPointYField, velocityField, angleField}, addParticleButton);
+        particleInputPanel1.setLayout(new BoxLayout(particleInputPanel1, BoxLayout.Y_AXIS));
+        setTextFieldSizes(numberOfParticlesField, startPointXField, startPointYField,
+                endPointXField, endPointYField, velocityField, angleField);
 
         // Particle input panel for case 2
         JPanel particleInputPanel2 = createParticleInputPanel("Case 2: ",
                 new JTextField[]{numberOfParticles2Field, particleLocationXField, particleLocationYField,
                         startingThetaField, endingThetaField, velocity2Field}, addParticle2Button);
+        particleInputPanel2.setLayout(new BoxLayout(particleInputPanel2, BoxLayout.Y_AXIS));
+        setTextFieldSizes(numberOfParticles2Field, particleLocationXField, particleLocationYField,
+                startingThetaField, endingThetaField, velocity2Field);
 
         // Particle input panel for case 3
         JPanel particleInputPanel3 = createParticleInputPanel("Case 3: ",
                 new JTextField[]{numberOfParticles3Field, particleLocation2XField, particleLocation2YField,
                         startingVelocityField, endingVelocityField, thetaField}, addParticle3Button);
+        particleInputPanel3.setLayout(new BoxLayout(particleInputPanel3, BoxLayout.Y_AXIS));
+        setTextFieldSizes(numberOfParticles3Field, particleLocation2XField, particleLocation2YField,
+                startingVelocityField, endingVelocityField, thetaField);
 
         // Wall input panel
-        JPanel wallInputPanel = createWallInputPanel();
+        JPanel wallInputPanel = createWallInputPanel(addWallButton);
 
         // Separator for the divider
         JSeparator separator = new JSeparator(JSeparator.VERTICAL);
 
+        JPanel particleInputPanels = new JPanel();
+        particleInputPanels.setLayout(new BoxLayout(particleInputPanels, BoxLayout.X_AXIS));
+        particleInputPanels.add(particleInputPanel1);
+        particleInputPanels.add(particleInputPanel2);
+        particleInputPanels.add(particleInputPanel3);
+
         // Create the bottom panel with a BorderLayout
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.add(separator, BorderLayout.CENTER);
-        bottomPanel.add(particleInputPanel1, BorderLayout.WEST);
-        bottomPanel.add(particleInputPanel2, BorderLayout.CENTER);
-        bottomPanel.add(particleInputPanel3, BorderLayout.EAST);
+        bottomPanel.add(particleInputPanels, BorderLayout.CENTER);
         bottomPanel.add(wallInputPanel, BorderLayout.SOUTH);
 
         JPanel contentPane = new JPanel(new BorderLayout());
@@ -181,7 +194,17 @@ public class ParticleSimulator extends JFrame {
         contentPane.add(bottomPanel, BorderLayout.SOUTH);
         setContentPane(contentPane);
 
+
         setVisible(true);
+    }
+    // Method to set preferred and maximum sizes for text fields
+    private void setTextFieldSizes(JTextField... fields) {
+        for (JTextField field : fields) {
+            field.setPreferredSize(new Dimension(100, 25));
+            field.setMaximumSize(new Dimension(100, 25));
+        }
+        this.revalidate();
+        this.repaint();
     }
 
     // Create a JTextField with a label
@@ -200,32 +223,60 @@ public class ParticleSimulator extends JFrame {
 
     // Create a particle input panel with labels
     private JPanel createParticleInputPanel(String label, JTextField[] fields, JButton button) {
-        JPanel particleInputPanel = new JPanel();
-        particleInputPanel.setLayout(new GridLayout(fields.length + 1, 2));
-        particleInputPanel.add(new JLabel(label));
+        JPanel particleInputPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 0.5;  // Adjust this value as needed
+
+        particleInputPanel.add(new JLabel(label), gbc);
 
         for (JTextField field : fields) {
             JPanel fieldPanel = new JPanel(new BorderLayout());
             fieldPanel.add(new JLabel(field.getName() + ":"), BorderLayout.WEST);
             fieldPanel.add(field, BorderLayout.CENTER);
-            particleInputPanel.add(fieldPanel);
+            particleInputPanel.add(fieldPanel, gbc);
         }
 
-        particleInputPanel.add(button);
+        particleInputPanel.add(button, gbc);
         return particleInputPanel;
     }
 
     // Create a wall input panel
-    private JPanel createWallInputPanel() {
-        JPanel wallInputPanel = new JPanel(new GridLayout(2, 2));
-        wallInputPanel.add(new JLabel("X1:"));
-        wallInputPanel.add(wallX1Field);
-        wallInputPanel.add(new JLabel("Y1:"));
-        wallInputPanel.add(wallY1Field);
-        wallInputPanel.add(new JLabel("X2:"));
-        wallInputPanel.add(wallX2Field);
-        wallInputPanel.add(new JLabel("Y2:"));
-        wallInputPanel.add(wallY2Field);
+    private JPanel createWallInputPanel(JButton addWallButton) {
+        JPanel wallInputPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        wallInputPanel.add(new JLabel("X1:"), gbc);
+        gbc.gridx = 1;
+        wallInputPanel.add(wallX1Field, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        wallInputPanel.add(new JLabel("Y1:"), gbc);
+        gbc.gridx = 1;
+        wallInputPanel.add(wallY1Field, gbc);
+
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        wallInputPanel.add(new JLabel("X2:"), gbc);
+        gbc.gridx = 3;
+        wallInputPanel.add(wallX2Field, gbc);
+
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        wallInputPanel.add(new JLabel("Y2:"), gbc);
+        gbc.gridx = 3;
+        wallInputPanel.add(wallY2Field, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 4;
+        wallInputPanel.add(addWallButton, gbc);  // Now you can add your button!
+
         return wallInputPanel;
     }
 
