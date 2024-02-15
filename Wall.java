@@ -1,15 +1,15 @@
 import java.awt.*;
 
 class Wall {
-    int startPointX; // x-coordinate of the starting point
-    int startPointY; // y-coordinate of the starting point
-    int endPointX;   // x-coordinate of the ending point
-    int endPointY;   // y-coordinate of the ending point
+    int startX; // x-coordinate of the starting point
+    int startY; // y-coordinate of the starting point
+    int endX;   // x-coordinate of the ending point
+    int endY;   // y-coordinate of the ending point
 
-    public Wall(int startX, int startY, int endX, int endY) {
-        this.startPointX = startX;
-        this.startPointY = startY;
-        this.endPointX = endX;
-        this.endPointY = endY;
+    public Wall(int x1, int y1, int x2, int y2) {
+        this.startX = x1;
+        this.startY = y1;
+        this.endX = x2;
+        this.endY = y2;
     }
 }

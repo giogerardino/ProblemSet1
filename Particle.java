@@ -1,9 +1,10 @@
+import java.awt.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 class Particle {
     // Variables
-    int currentPosX; // Current x-coordinate
-    int currentPosY; // Current y-coordinate
+    int x; // Current x-coordinate
+    int y; // Current y-coordinate
     double currentDirection; // Current direction in degrees
     double currentSpeed; // Current speed in pixels per second
     double accumulatedXMovement = 0.0; // Accumulated movement in the x-axis
@@ -11,8 +12,8 @@ class Particle {
 
     // Constructor
     public Particle(int initialX, int initialY, double initialAngle, double initialVelocity) {
-        this.currentPosX = initialX;
-        this.currentPosY = initialY;
+        this.x = initialX;
+        this.y = initialY;
         this.currentDirection = initialAngle;
         this.currentSpeed = initialVelocity;
     }
@@ -48,8 +49,8 @@ class Particle {
     // Check collision between particle and a wall
     private boolean checkCollisionWithWall(Wall wall) {
         // Current position
-        double particleX1 = this.currentPosX;
-        double particleY1 = this.currentPosY;
+        double particleX1 = this.x;
+        double particleY1 = this.y;
 
         // Predicted next position based on current velocity and angle
         double particleX2 = predictNextPositionX(1 / 60.0);
@@ -70,7 +71,7 @@ class Particle {
 
         // Calculate the intersection point (u and t are the line scalar values)
         double t = calculateScalarT(particleX1, wallX1, wallX2, particleY1, wallY1, wallY2, denominator);
-        double u = calculateScalarU(particleX1, particleX2, particleY1, wallY1, denominator);
+        double u = calculateScalarU(particleX1, particleX2, particleY1, particleY2, wallY1, denominator);
 
         // Check if there is an intersection within the line segments
         return isIntersectionWithinSegments(t, u);
@@ -134,8 +135,8 @@ class Particle {
     // Update position when accumulated movement exceeds 1 pixel
     private void updatePositionIfExceedsOnePixel() {
         if (Math.abs(this.accumulatedXMovement) >= 1.0 || Math.abs(this.accumulatedYMovement) >= 1.0) {
-            this.currentPosX += (int) Math.round(this.accumulatedXMovement);
-            this.currentPosY += (int) Math.round(this.accumulatedYMovement);
+            this.x += (int) Math.round(this.accumulatedXMovement);
+            this.y += (int) Math.round(this.accumulatedYMovement);
 
             // Reset accumulated movement after applying position change
             this.accumulatedXMovement -= (int) Math.round(this.accumulatedXMovement);
@@ -149,20 +150,20 @@ class Particle {
         int buffer = 1;
 
         // Handle canvas boundaries
-        if (this.currentPosX <= 0) {
+        if (this.x <= 0) {
             reflectOnCollisionWithCanvasBorder(180);
-            this.currentPosX = buffer; // Move particle slightly inside to prevent sticking
-        } else if (this.currentPosX + diameter >= canvasWidth) {
+            this.x = buffer; // Move particle slightly inside to prevent sticking
+        } else if (this.x + diameter >= canvasWidth) {
             reflectOnCollisionWithCanvasBorder(180);
-            this.currentPosX = canvasWidth - diameter - buffer;
+            this.x = canvasWidth - diameter - buffer;
         }
 
-        if (this.currentPosY + diameter >= canvasHeight) {
+        if (this.y + diameter >= canvasHeight) {
             reflectOnCollisionWithCanvasBorder(0);
-            this.currentPosY = canvasHeight - diameter - buffer;
-        } else if (this.currentPosY <= 0) {
+            this.y = canvasHeight - diameter - buffer;
+        } else if (this.y <= 0) {
             reflectOnCollisionWithCanvasBorder(0);
-            this.currentPosY = buffer;
+            this.y = buffer;
         }
     }
 
@@ -176,19 +177,19 @@ class Particle {
     }
 
     // Calculate denominator for line intersection formula
-    private double calculateDenominator(double particleX1, double particleX2, double particleY1, double particleY2,
+    private double calculateDenominator(double particleX1, double particleX2, double particleY1, double particleY2, 
                                         double wallX1, double wallY1, double wallX2, double wallY2) {
         return (particleX1 - particleX2) * (wallY1 - wallY2) - (particleY1 - particleY2) * (wallX1 - wallX2);
     }
 
     // Predict next X position based on current velocity and angle
     private double predictNextPositionX(double deltaTime) {
-        return this.currentPosX + this.currentSpeed * Math.cos(Math.toRadians(this.currentDirection)) * deltaTime;
+        return this.x + this.currentSpeed * Math.cos(Math.toRadians(this.currentDirection)) * deltaTime;
     }
 
     // Predict next Y position based on current velocity and angle
     private double predictNextPositionY(double deltaTime) {
-        return this.currentPosY + this.currentSpeed * Math.sin(Math.toRadians(this.currentDirection)) * deltaTime;
+        return this.y + this.currentSpeed * Math.sin(Math.toRadians(this.currentDirection)) * deltaTime;
     }
 
     // Calculate scalar 't' for line intersection formula
@@ -197,7 +198,7 @@ class Particle {
     }
 
     // Calculate scalar 'u' for line intersection formula
-    private double calculateScalarU(double particleX1, double particleX2, double particleY1, double wallY1, double denominator) {
+    private double calculateScalarU(double particleX1, double particleX2, double particleY1, double particleY2, double wallY1, double denominator) {
         return ((particleX2 - particleX1) * (particleY1 - wallY1) - (particleY2 - particleY1) * (particleX1 - wallX1)) / denominator;
     }
 
