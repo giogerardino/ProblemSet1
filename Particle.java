@@ -5,8 +5,8 @@ class Particle {
     // Variables
     int x; // Current x-coordinate
     int y; // Current y-coordinate
-    double currentDirection; // Current direction in degrees
-    double currentSpeed; // Current speed in pixels per second
+    double currentAngle; // Current direction in degrees
+    double currentVelocity; // Current speed in pixels per second
     double accumulatedXMovement = 0.0; // Accumulated movement in the x-axis
     double accumulatedYMovement = 0.0; // Accumulated movement in the y-axis
 
@@ -14,14 +14,14 @@ class Particle {
     public Particle(int initialX, int initialY, double initialAngle, double initialVelocity) {
         this.x = initialX;
         this.y = initialY;
-        this.currentDirection = initialAngle;
-        this.currentSpeed = initialVelocity;
+        this.currentAngle = initialAngle;
+        this.currentVelocity = initialVelocity;
     }
 
     // Update particle's position based on its velocity and angle
     public void updatePosition(double deltaTime) {
         // Convert angle to radians for trigonometric calculations
-        double radians = toRadians(this.currentDirection);
+        double radians = toRadians(this.currentAngle);
 
         // Calculate movement based on velocity and angle
         double deltaX = calculateDeltaX(deltaTime, radians);
@@ -100,13 +100,13 @@ class Particle {
 
     // Reflect on collision with canvas boundaries
     private void reflectOnCollisionWithCanvasBorder(double targetAngle) {
-        this.currentDirection = 2 * targetAngle - this.currentDirection;
+        this.currentAngle = 2 * targetAngle - this.currentAngle;
     }
 
     // Normalize the angle to the range [0, 360)
     private void normalizeAngle() {
-        if (this.currentDirection < 0) this.currentDirection += 360;
-        else if (this.currentDirection >= 360) this.currentDirection -= 360;
+        if (this.currentAngle < 0) this.currentAngle += 360;
+        else if (this.currentAngle >= 360) this.currentAngle -= 360;
     }
 
     // Additional subfunctions
@@ -118,12 +118,12 @@ class Particle {
 
     // Calculate the change in X based on velocity, angle, and deltaTime
     private double calculateDeltaX(double deltaTime, double radians) {
-        return this.currentSpeed * Math.cos(radians) * deltaTime;
+        return this.currentVelocity * Math.cos(radians) * deltaTime;
     }
 
     // Calculate the change in Y based on velocity, angle, and deltaTime
     private double calculateDeltaY(double deltaTime, double radians) {
-        return this.currentSpeed * Math.sin(radians) * deltaTime;
+        return this.currentVelocity * Math.sin(radians) * deltaTime;
     }
 
     // Accumulate sub-pixel movements
@@ -184,12 +184,12 @@ class Particle {
 
     // Predict next X position based on current velocity and angle
     private double predictNextPositionX(double deltaTime) {
-        return this.x + this.currentSpeed * Math.cos(Math.toRadians(this.currentDirection)) * deltaTime;
+        return this.x + this.currentVelocity * Math.cos(Math.toRadians(this.currentAngle)) * deltaTime;
     }
 
     // Predict next Y position based on current velocity and angle
     private double predictNextPositionY(double deltaTime) {
-        return this.y + this.currentSpeed * Math.sin(Math.toRadians(this.currentDirection)) * deltaTime;
+        return this.y + this.currentVelocity * Math.sin(Math.toRadians(this.currentAngle)) * deltaTime;
     }
 
     // Calculate scalar 't' for line intersection formula
@@ -209,7 +209,7 @@ class Particle {
 
     // Calculate incident vector components
     private double[] calculateIncidentVector() {
-        return new double[]{Math.cos(Math.toRadians(this.currentDirection)), Math.sin(Math.toRadians(this.currentDirection))};
+        return new double[]{Math.cos(Math.toRadians(this.currentAngle)), Math.sin(Math.toRadians(this.currentAngle))};
     }
 
     // Calculate wall's normal vector
@@ -238,6 +238,6 @@ class Particle {
 
     // Update direction from the reflected vector
     private void updateDirectionFromReflectedVector(double[] reflectedVector) {
-        this.currentDirection = Math.toDegrees(Math.atan2(reflectedVector[1], reflectedVector[0]));
+        this.currentAngle = Math.toDegrees(Math.atan2(reflectedVector[1], reflectedVector[0]));
     }
 }
