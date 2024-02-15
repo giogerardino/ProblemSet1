@@ -1,15 +1,13 @@
-import java.awt.*;
-
 class Wall {
-    int startX; 
-    int startY; 
-    int endX;   
-    int endY;   
+    int x1;
+    int y1;
+    int x2;
+    int y2;
 
     public Wall(int initX, int initY, int finalX, int finalY) {
-        this.startX = initX;
-        this.startY = initY;
-        this.endX = finalX;
-        this.endY = finalY;
+        this.x1 = initX;
+        this.y1 = initY;
+        this.x2 = finalX;
+        this.y2 = finalY;
     }
 }

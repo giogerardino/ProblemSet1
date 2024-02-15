@@ -12,17 +12,16 @@ class Canvas extends JPanel {
     final int height = 720;
     private final List<Particle> particles = new ArrayList<>();
     private final CopyOnWriteArrayList<Wall> walls = new CopyOnWriteArrayList<>();
-    private final JLabel fpsLabel; //display FPS
-    private int framesCounted = 0;
-    private long lastFpsUpdateTime = System.nanoTime(); // Time of the last FPS update
+    private final JLabel fps; //display FPS
+    private int frameCtr = 0;
+    private long updatedFps = System.nanoTime(); // Time of the last FPS update
     private final BufferedImage offscreenImage;
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(8);
     private final double timeStep = 1.0 / 240.0;
     private final long time = 1000000000 / 60; // where 1000000000 is nanoseconds and 60 is the target FPS
     private final Object particlesLock = new Object();
 
-    public Canvas(JLabel fpsLabel) {
-        this.fpsLabel = fpsLabel;
+    public Canvas(JLabel fps) {
+        this.fps = fps;
         setPreferredSize(new Dimension(width, height));
         offscreenImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
     }
@@ -101,7 +100,7 @@ class Canvas extends JPanel {
 
         for (Wall wall : walls) {
             g2d.setColor(Color.YELLOW);
-            g2d.drawLine(wall.startX, height - wall.startY, wall.endX, height - wall.endY);
+            g2d.drawLine(wall.x1, height - wall.y1, wall.x2, height - wall.y2);
         }
 
         g2d.dispose();
@@ -115,13 +114,13 @@ class Canvas extends JPanel {
 
     private void updateFPS() {
         long currentTime = System.nanoTime();
-        framesCounted++;
-        if ((currentTime - lastFpsUpdateTime) >= 500_000_000L) {
-            double elapsedTimeInSeconds = (currentTime - lastFpsUpdateTime) / 1_000_000_000.0;
-            double fps = framesCounted / elapsedTimeInSeconds;
-            fpsLabel.setText(String.format("              %.2f              ", fps));
-            framesCounted = 0;
-            lastFpsUpdateTime = currentTime;
+        frameCtr++;
+        if ((currentTime - updatedFps) >= 500_000_000L) {
+            double elapsedTimeInSeconds = (currentTime - updatedFps) / 1_000_000_000.0;
+            double fps = frameCtr / elapsedTimeInSeconds;
+            this.fps.setText(String.format("              %.2f              ", fps));
+            frameCtr = 0;
+            updatedFps = currentTime;
         }
     }
 
@@ -131,23 +130,23 @@ class Canvas extends JPanel {
      * point and end point. Particles are added with a uniform
      * distance between the given start and end points.
      */
-    public void addParticlesCase1(int n, int startX, int startY, int endX, int endY, double angle, double velocity) {
+    public void particlesCase1(int n, int x1, int y1, int x2, int y2, double angle, double velocity) {
         if (n <= 0) return; // no particles to add
 
         // add a single particle at the start point if only one particle is requested
         if (n == 1) {
-            addParticle(new Particle(startX, startY, angle, velocity));
+            addParticle(new Particle(x1, y1, angle, velocity));
             return;
         }
 
         // calculate the increment for x and y coordinates
-        double deltaX = (double) (endX - startX) / (n - 1);
-        double deltaY = (double) (endY - startY) / (n - 1);
+        double deltaX = (double) (x2 - x1) / (n - 1);
+        double deltaY = (double) (y2 - y1) / (n - 1);
 
         // Add particles at evenly spaced intervals along the line segment
         for (int i = 0; i < n; i++) {
-            int x = (int) (startX + i * deltaX);
-            int y = (int) (startY + i * deltaY);
+            int x = (int) (x1 + i * deltaX);
+            int y = (int) (y1 + i * deltaY);
             addParticle(new Particle(x, y, angle, velocity));
         }
     }
@@ -158,17 +157,17 @@ class Canvas extends JPanel {
      * start Θ and end Θ. Particles are added with uniform distance
      * between the given start Θ and end Θ.
      */
-    public void addParticlesCase2(int n, int startX, int startY, double startAngle, double endAngle, double velocity) {
+    public void particlesCase2(int n, int x, int y, double angle1, double angle2, double velocity) {
         if (n <= 1) {
-            addParticle(new Particle(startX, startY, startAngle, velocity));
+            addParticle(new Particle(x, y, angle1, velocity));
         } else {
             // calculate the angle increment
-            double angleIncrement = (endAngle - startAngle) / (n - 1);
+            double angleIncrement = (angle2 - angle1) / (n - 1);
 
             // Add particles with incremented angles
             for (int i = 0; i < n; i++) {
-                double angle = startAngle + (angleIncrement * i);
-                addParticle(new Particle(startX, startY, angle, velocity));
+                double angle = angle1 + (angleIncrement * i);
+                addParticle(new Particle(x, y, angle, velocity));
             }
         }
     }
@@ -179,17 +178,17 @@ class Canvas extends JPanel {
      * velocity and end velocity. Particles are added with a uniform
      * difference between the given start and end velocities.
      */
-    public void addParticlesCase3(int n, int startX, int startY, double angle, double startVelocity, double endVelocity) {
+    public void particlesCase3(int n, int x, int y, double angle, double vel1, double vel2) {
         if (n > 1) { // calculate the velocity increment
-            double velocityIncrement = (endVelocity - startVelocity) / (n - 1);
+            double velocityIncrement = (vel2 - vel1) / (n - 1);
 
             // Add particles with incremented velocities
             for (int i = 0; i < n; i++) {
-                double velocity = startVelocity + (velocityIncrement * i);
-                addParticle(new Particle(startX, startY, angle, velocity));
+                double velocity = vel1 + (velocityIncrement * i);
+                addParticle(new Particle(x, y, angle, velocity));
             }
         } else {
-            addParticle(new Particle(startX, startY, angle, startVelocity));
+            addParticle(new Particle(x, y, angle, vel1));
         }
     }
 }

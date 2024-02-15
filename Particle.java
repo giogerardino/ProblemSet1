@@ -127,10 +127,10 @@ class Particle {
         double x2 = x1 + currentVelocity * Math.cos(Math.toRadians(currentAngle)) * (1 / 60.0);
         double y2 = y1 + currentVelocity * Math.sin(Math.toRadians(currentAngle)) * (1 / 60.0);
 
-        double x3 = wall.startX;
-        double y3 = wall.startY;
-        double x4 = wall.endX;
-        double y4 = wall.endY;
+        double x3 = wall.x1;
+        double y3 = wall.y1;
+        double x4 = wall.x2;
+        double y4 = wall.y2;
 
         double denominator = calculateDenominator(x1, y1, x2, y2, x3, y3, x4, y4);
         if (denominator == 0) {
@@ -177,8 +177,8 @@ class Particle {
     }
 
     private double[] calculateWallNormalVector(Wall wall) {
-        double wallDx = wall.endX - wall.startX;
-        double wallDy = wall.endY - wall.startY;
+        double wallDx = wall.x2 - wall.x1;
+        double wallDy = wall.y2 - wall.y1;
         double normalX = wallDy;
         double normalY = -wallDx;
 
