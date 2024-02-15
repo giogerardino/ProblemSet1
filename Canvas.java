@@ -1,25 +1,26 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 class Canvas extends JPanel {
     final int width = 1280;
     final int height = 720;
-    private final CopyOnWriteArrayList<Particle> particles = new CopyOnWriteArrayList<>();
+    private final List<Particle> particles = new ArrayList<>();
     private final CopyOnWriteArrayList<Wall> walls = new CopyOnWriteArrayList<>();
-    // FPS tracking
     private final JLabel fpsLabel; // JLabel to display FPS
     private int framesCounted = 0;
     private long lastFpsUpdateTime = System.nanoTime(); // Time of the last FPS update
     private final BufferedImage offscreenImage;
-    private final ForkJoinPool physicsThreadPool = new ForkJoinPool();
-    private final ForkJoinPool renderingThreadPool = new ForkJoinPool();
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(8); // Adjust the number of threads as needed
     private final double timeStep = 1.0 / 240.0;
     private final long time = 1000000000 / 60; // where 1000000000 is nanoseconds and 60 is the target FPS
+    private final Object particlesLock = new Object();
 
     public Canvas(JLabel fpsLabel) {
         this.fpsLabel = fpsLabel; // Initialize the FPS label
@@ -28,7 +29,9 @@ class Canvas extends JPanel {
     }
 
     public void addParticle(Particle particle) {
-        particles.add(particle);
+        synchronized (particlesLock) {
+            particles.add(particle);
+        }
     }
 
     public void addWall(Wall wall) {
@@ -36,30 +39,47 @@ class Canvas extends JPanel {
     }
 
     public void startSimulation() {
-        new Thread(() -> {
-            while (true) {
-                long startTime = System.nanoTime();
-                updateParticles(this.timeStep); // Update particle physics
-                SwingUtilities.invokeLater(this::repaint); // Repaint the canvas
-
-                try {
-                    long sleepTime = (this.time - (System.nanoTime() - startTime)) / 1000000;
-                    if (sleepTime > 0) {
-                        Thread.sleep(sleepTime);
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }).start();
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+        scheduler.scheduleAtFixedRate(this::updateParticles, 0, time, TimeUnit.NANOSECONDS);
+        scheduler.scheduleAtFixedRate(this::repaint, 0, time, TimeUnit.NANOSECONDS);
     }
 
-    private void updateParticles(double deltaTime) {
-        physicsThreadPool.invokeAll(particles.stream().map(particle -> (Callable<Void>)() -> {
-            particle.updatePosition(deltaTime);
-            particle.handleWallCollision(width, height, walls);
-            return null;
-        }).collect(Collectors.toList()));
+    private void updateParticles() {
+        int threadCount = Runtime.getRuntime().availableProcessors(); // Use available processors
+
+        synchronized (particlesLock) {
+            int particlesPerThread = particles.size() / threadCount;
+
+            List<Particle> shuffledParticles = new ArrayList<>(particles);
+            Collections.shuffle(shuffledParticles); // Shuffle particles for better load balancing
+
+            List<List<Particle>> particleBatches = new ArrayList<>();
+
+            for (int i = 0; i < threadCount; i++) {
+                int startIndex = i * particlesPerThread;
+                int endIndex = (i == threadCount - 1) ? particles.size() : (i + 1) * particlesPerThread;
+                particleBatches.add(shuffledParticles.subList(startIndex, endIndex));
+            }
+
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+            for (List<Particle> particleBatch : particleBatches) {
+                futures.add(CompletableFuture.runAsync(() -> {
+                    for (Particle particle : particleBatch) {
+                        particle.updatePosition(timeStep);
+                        particle.handleWallCollision(width, height, walls);
+                    }
+                }));
+            }
+
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+
+            try {
+                allOf.get(); // Wait for all particle updates to complete
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -72,27 +92,26 @@ class Canvas extends JPanel {
         g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, width, height);
 
-        // Split the canvas into smaller regions
-//        int numThreads = Runtime.getRuntime().availableProcessors(); // Get the number of available processors
-        int numThreads = 12; // 12 logical cores ## ADJUST ACCORDING TO NUMBER OF LOGICAL CORES
-        int regionHeight = height / numThreads;
+        // Load balancing for rendering particles
+        synchronized (particlesLock) {
+            AtomicInteger counter = new AtomicInteger(0);
 
-        List<Callable<Void>> renderingTasks = new ArrayList<>(); // Use java.util.List here
+            particles.parallelStream().forEach(particle -> {
+                int drawY = height - particle.y - 5; // Adjust for inverted y-coordinate
 
-        // Create rendering tasks for each thread
-        for (int i = 0; i < numThreads; i++) {
-            final int startY = i * regionHeight;
-            final int endY = (i == numThreads - 1) ? height : (i + 1) * regionHeight;
-            renderingTasks.add(() -> {
-                renderRegion(g2d, startY, endY);
-                return null;
+                // Set the particle color to white
+                g2d.setColor(Color.WHITE);
+                g2d.fillOval(particle.x, drawY, 5, 5);
+
+                counter.incrementAndGet();
             });
         }
 
-        // Invoke all rendering tasks in parallel
-        renderingThreadPool.invokeAll(renderingTasks);
+        for (Wall wall : walls) {
+            g2d.setColor(Color.YELLOW);
+            g2d.drawLine(wall.startX, height - wall.startY, wall.endX, height - wall.endY);
+        }
 
-        // Dispose of the graphics object
         g2d.dispose();
         g.drawImage(offscreenImage, 0, 0, this);
 
@@ -101,17 +120,6 @@ class Canvas extends JPanel {
         g.drawRect(0, 0, width, height); // Draw border around the 1280x720 area
 
         updateFPS();
-    }
-
-    private void renderRegion(Graphics2D g, int startY, int endY) {
-        for (Particle particle : particles) {
-            int drawY = height - particle.y - 5; // Adjust for inverted y-coordinate
-            if (drawY >= startY && drawY < endY) {
-                // Set the particle color to white
-                g.setColor(Color.WHITE);
-                g.fillOval(particle.x, drawY, 5, 5);
-            }
-        }
     }
 
     private void updateFPS() {
