@@ -15,6 +15,8 @@ class Canvas extends JPanel {
     private final BufferedImage offscreenImage;
     private final ForkJoinPool physicsThreadPool = new ForkJoinPool();
     private final ForkJoinPool renderingThreadPool = new ForkJoinPool();
+    private final double timeStep = 1.0 / 240.0;
+    private final long time = 1000000000 / 60; // where 1000000000 is nanoseconds and 60 is the target FPS
 
     public Canvas(JLabel fpsLabel) {
         this.fpsLabel = fpsLabel; // Initialize the FPS label
@@ -34,11 +36,11 @@ class Canvas extends JPanel {
         new Thread(() -> {
             while (true) {
                 long startTime = System.nanoTime();
-                updateParticles(Constants.TIME_STEP); // Update particle physics
+                updateParticles(this.timeStep); // Update particle physics
                 SwingUtilities.invokeLater(this::repaint); // Repaint the canvas
 
                 try {
-                    long sleepTime = (Constants.OPTIMAL_TIME - (System.nanoTime() - startTime)) / 1000000;
+                    long sleepTime = (this.time - (System.nanoTime() - startTime)) / 1000000;
                     if (sleepTime > 0) {
                         Thread.sleep(sleepTime);
                     }
