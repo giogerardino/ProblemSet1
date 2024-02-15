@@ -2,8 +2,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.*;
 
 public class Simulator {
@@ -18,8 +16,8 @@ public class Simulator {
         frame.add(canvas, BorderLayout.CENTER);
         frame.add(scrollPane, BorderLayout.SOUTH);
 
-        frame.setSize(1280, 860); // Set the initial frame size
-        frame.setResizable(false); // Disable frame resizing
+        frame.setSize(1280, 860);
+        frame.setResizable(false);
         frame.setVisible(true);
 
         canvas.startSimulation();
@@ -38,13 +36,13 @@ public class Simulator {
         Border roundedBorder = BorderFactory.createLineBorder(Color.BLACK, 2, true);
         TitledBorder titleBorder = new TitledBorder(roundedBorder, " FPS ", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION);
         Font titleFont = titleBorder.getTitleFont();
-        titleBorder.setTitleFont(titleFont.deriveFont(titleFont.getSize() + 4)); // Increase the font size (adjust as needed)
+        titleBorder.setTitleFont(titleFont.deriveFont(titleFont.getSize() + 4));
 
         // Center the text horizontally within the label
         fpsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         // Create an empty border with custom insets
-        Border emptyBorder = BorderFactory.createEmptyBorder(10, 0, 10, 0); // Adjust the insets as needed
+        Border emptyBorder = BorderFactory.createEmptyBorder(10, 0, 10, 0);
 
         // Compound the borders to achieve the desired result
         CompoundBorder compoundBorder = new CompoundBorder(emptyBorder, titleBorder);
@@ -147,7 +145,7 @@ public class Simulator {
                     throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
                 }
 
-                canvas.addParticlesBetweenPoints(n, new Point(startX, startY), new Point(endX, endY), angle, velocity);
+                canvas.addParticlesCase1(n, startX, startY, endX, endY, angle, velocity);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(panel, "Invalid input. Please enter valid numbers.");
             } catch (IllegalArgumentException ex) {
@@ -201,7 +199,7 @@ public class Simulator {
                     throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
                 }
 
-                canvas.addParticlesVaryingAngles(n, new Point(x, y), startAngle, endAngle, velocity);
+                canvas.addParticlesCase2(n, x, y, startAngle, endAngle, velocity);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(panel, "Invalid input. Please enter valid numbers.");
             } catch (IllegalArgumentException ex) {
@@ -217,14 +215,14 @@ public class Simulator {
         JPanel case3Panel = new JPanel();
         case3Panel.setLayout(new BoxLayout(case3Panel, BoxLayout.Y_AXIS));
 
-        // Add bold title border
+        // bold title border
         Border roundedBorder = BorderFactory.createLineBorder(Color.GRAY, 2, true);
         TitledBorder titleBorder = new TitledBorder(roundedBorder, "Add Particles", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION);
         Font titleFont = titleBorder.getTitleFont();
         titleBorder.setTitleFont(titleFont.deriveFont(titleFont.getStyle() | Font.BOLD)); // Make it bold
         case3Panel.setBorder(titleBorder);
 
-        // Add centered text
+        // centered text
         JLabel caseText = new JLabel("Case 3: Different Velocities");
         caseText.setHorizontalAlignment(SwingConstants.CENTER);
         case3Panel.add(caseText);
@@ -254,7 +252,7 @@ public class Simulator {
                     throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
                 }
 
-                canvas.addParticlesVaryingVelocities(n, new Point(x, y), angle, startVelocity, endVelocity);
+                canvas.addParticlesCase3(n, x, y, angle, startVelocity, endVelocity);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(panel, "Invalid input. Please enter valid numbers.");
             } catch (IllegalArgumentException ex) {

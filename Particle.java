@@ -15,7 +15,7 @@ class Particle {
         currentVelocity = initialVelocity;
     }
 
-    // Method to update particle's position based on its velocity and angle
+    // updates the particle's position based on its velocity and angle
     public void updatePosition(double deltaTime) {
         double radians = Math.toRadians(currentAngle);
 
@@ -62,7 +62,7 @@ class Particle {
         return roundedY;
     }
 
-    // Method to handle wall collision and update particle's position and angle
+    // handles wall collision and update particle's position and angle
     public void handleWallCollision(int canvasWidth, int canvasHeight, CopyOnWriteArrayList<Wall> walls) {
         int particleDiameter = 5;
         int buffer = 1;
@@ -74,7 +74,6 @@ class Particle {
     }
 
     private void handleCanvasCollision(int canvasWidth, int canvasHeight, int diameter, int buffer) {
-        // Adjusted collision handling for canvas borders
         if (x - accumulatedX <= 0 || x + diameter + accumulatedX >= canvasWidth) {
             reflectOffVerticalWall();
             moveInsideCanvas(canvasWidth, diameter, buffer);
@@ -85,7 +84,6 @@ class Particle {
             moveInsideCanvas(canvasHeight, diameter, buffer);
         }
     }
-
     private void moveInsideCanvas(int canvasHeight, int diameter, int buffer) {
         int canvasWidth = 1280;
         if (x <= 0) {
@@ -108,10 +106,6 @@ class Particle {
     private void reflectOffHorizontalWall() {
         currentAngle = -currentAngle;
     }
-
-//    private void moveInsideCanvas(int position) {
-//        y = position;
-//    }
 
     private void handleWallCollisions(CopyOnWriteArrayList<Wall> walls) {
         for (Wall wall : walls) {

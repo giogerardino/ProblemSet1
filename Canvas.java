@@ -7,23 +7,22 @@ import java.util.Collections;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 class Canvas extends JPanel {
     final int width = 1280;
     final int height = 720;
     private final List<Particle> particles = new ArrayList<>();
     private final CopyOnWriteArrayList<Wall> walls = new CopyOnWriteArrayList<>();
-    private final JLabel fpsLabel; // JLabel to display FPS
+    private final JLabel fpsLabel; //display FPS
     private int framesCounted = 0;
     private long lastFpsUpdateTime = System.nanoTime(); // Time of the last FPS update
     private final BufferedImage offscreenImage;
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(8); // Adjust the number of threads as needed
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(8);
     private final double timeStep = 1.0 / 240.0;
     private final long time = 1000000000 / 60; // where 1000000000 is nanoseconds and 60 is the target FPS
     private final Object particlesLock = new Object();
 
     public Canvas(JLabel fpsLabel) {
-        this.fpsLabel = fpsLabel; // Initialize the FPS label
+        this.fpsLabel = fpsLabel;
         setPreferredSize(new Dimension(width, height));
         offscreenImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
     }
@@ -33,11 +32,9 @@ class Canvas extends JPanel {
             particles.add(particle);
         }
     }
-
     public void addWall(Wall wall) {
         walls.add(wall);
     }
-
     public void startSimulation() {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
         scheduler.scheduleAtFixedRate(this::updateParticles, 0, time, TimeUnit.NANOSECONDS);
@@ -45,13 +42,13 @@ class Canvas extends JPanel {
     }
 
     private void updateParticles() {
-        int threadCount = Runtime.getRuntime().availableProcessors(); // Use available processors
+        int threadCount = Runtime.getRuntime().availableProcessors(); // use available processors // default
 
         synchronized (particlesLock) {
             int particlesPerThread = particles.size() / threadCount;
 
             List<Particle> shuffledParticles = new ArrayList<>(particles);
-            Collections.shuffle(shuffledParticles); // Shuffle particles for better load balancing
+            Collections.shuffle(shuffledParticles); // shuffle particles for better load balancing
 
             List<List<Particle>> particleBatches = new ArrayList<>();
 
@@ -75,20 +72,17 @@ class Canvas extends JPanel {
             CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 
             try {
-                allOf.get(); // Wait for all particle updates to complete
+                allOf.get(); // wait for all particle updates to complete
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         Graphics2D g2d = offscreenImage.createGraphics();
-
-        // Set the background color to black
         g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, width, height);
 
@@ -97,9 +91,7 @@ class Canvas extends JPanel {
             AtomicInteger counter = new AtomicInteger(0);
 
             particles.parallelStream().forEach(particle -> {
-                int drawY = height - particle.y - 5; // Adjust for inverted y-coordinate
-
-                // Set the particle color to white
+                int drawY = height - particle.y - 5;
                 g2d.setColor(Color.WHITE);
                 g2d.fillOval(particle.x, drawY, 5, 5);
 
@@ -115,9 +107,8 @@ class Canvas extends JPanel {
         g2d.dispose();
         g.drawImage(offscreenImage, 0, 0, this);
 
-        // Draw the border for the designated area
-        g.setColor(Color.BLACK); // Set border color
-        g.drawRect(0, 0, width, height); // Draw border around the 1280x720 area
+        g.setColor(Color.BLACK);
+        g.drawRect(0, 0, width, height);
 
         updateFPS();
     }
@@ -134,44 +125,62 @@ class Canvas extends JPanel {
         }
     }
 
-    public void addParticlesBetweenPoints(int n, Point start, Point end, double angle, double velocity) {
+    /***
+     * Provide an integer n indicating the number of particles to
+     * add. Keep the velocity and angle constant. Provide a start
+     * point and end point. Particles are added with a uniform
+     * distance between the given start and end points.
+     */
+    public void addParticlesCase1(int n, int startX, int startY, int endX, int endY, double angle, double velocity) {
         if (n <= 0) return; // No particles to add
         if (n == 1) {
             // Add a single particle at the start point
-            addParticle(new Particle(start.x, start.y, angle, velocity));
+            addParticle(new Particle(startX, startY, angle, velocity));
             return;
         }
         for (int i = 0; i < n; i++) {
             double ratio = (double) i / (n - 1);
-            int x = start.x + (int) ((end.x - start.x) * ratio);
-            int y = start.y + (int) ((end.y - start.y) * ratio);
+            int x = startX + (int) ((endX - startX) * ratio);
+            int y = startY + (int) ((endY - startY) * ratio);
             addParticle(new Particle(x, y, angle, velocity));
         }
     }
 
-    public void addParticlesVaryingAngles(int n, Point start, double startAngle, double endAngle, double velocity) {
+    /***
+     * Provide an integer n indicating the number of particles to
+     * add. Keep the start point and velocity constant. Provide a
+     * start Θ and end Θ. Particles are added with uniform distance
+     * between the given start Θ and end Θ.
+     */
+    public void addParticlesCase2(int n, int startX, int startY, double startAngle, double endAngle, double velocity) {
         if (n <= 1) {
-            addParticle(new Particle(start.x, start.y, startAngle, velocity));
+            addParticle(new Particle(startX, startY, startAngle, velocity));
             return;
         }
 
         for (int i = 0; i < n; i++) {
             double angleIncrement = (endAngle - startAngle) / (n - 1);
             double angle = startAngle + (angleIncrement * i);
-            addParticle(new Particle(start.x, start.y, angle, velocity));
+            addParticle(new Particle(startX, startY, angle, velocity));
         }
     }
 
-    public void addParticlesVaryingVelocities(int n, Point start, double angle, double startVelocity, double endVelocity) {
+    /***
+     * Provide an integer n indicating the number of particles to
+     * add. Keep the start point and angle constant. Provide a start
+     * velocity and end velocity. Particles are added with a uniform
+     * difference between the given start and end velocities.
+     */
+    public void addParticlesCase3(int n, int startX, int startY, double angle, double startVelocity, double endVelocity) {
         if (n <= 1) {
-            addParticle(new Particle(start.x, start.y, angle, startVelocity));
+            addParticle(new Particle(startX, startY, angle, startVelocity));
             return;
         }
 
         for (int i = 0; i < n; i++) {
             double velocityIncrement = (endVelocity - startVelocity) / (n - 1);
             double velocity = startVelocity + (velocityIncrement * i);
-            addParticle(new Particle(start.x, start.y, angle, velocity));
+            addParticle(new Particle(startX, startY, angle, velocity));
         }
     }
 }
