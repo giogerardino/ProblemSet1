@@ -74,20 +74,30 @@ class Particle {
     }
 
     private void handleCanvasCollision(int canvasWidth, int canvasHeight, int diameter, int buffer) {
-        if (x <= 0) {
+        // Adjusted collision handling for canvas borders
+        if (x - accumulatedX <= 0 || x + diameter + accumulatedX >= canvasWidth) {
             reflectOffVerticalWall();
-            moveInsideCanvas(buffer);
-        } else if (x + diameter >= canvasWidth) {
-            reflectOffVerticalWall();
-            moveInsideCanvas(canvasWidth - diameter - buffer);
+            moveInsideCanvas(canvasWidth, diameter, buffer);
         }
 
-        if (y + diameter >= canvasHeight) {
+        if (y + diameter + accumulatedY >= canvasHeight || y - accumulatedY <= 0) {
             reflectOffHorizontalWall();
-            moveInsideCanvas(canvasHeight - diameter - buffer);
-        } else if (y <= 0) {
-            reflectOffHorizontalWall();
-            moveInsideCanvas(buffer);
+            moveInsideCanvas(canvasHeight, diameter, buffer);
+        }
+    }
+
+    private void moveInsideCanvas(int canvasHeight, int diameter, int buffer) {
+        int canvasWidth = 1280;
+        if (x <= 0) {
+            x = buffer;
+        } else if (x + diameter >= canvasWidth) {
+            x = canvasWidth - diameter - buffer;
+        }
+
+        if (y <= 0) {
+            y = buffer;
+        } else if (y + diameter >= canvasHeight) {
+            y = 720 - diameter - buffer;
         }
     }
 
@@ -99,9 +109,9 @@ class Particle {
         currentAngle = -currentAngle;
     }
 
-    private void moveInsideCanvas(int position) {
-        y = position;
-    }
+//    private void moveInsideCanvas(int position) {
+//        y = position;
+//    }
 
     private void handleWallCollisions(CopyOnWriteArrayList<Wall> walls) {
         for (Wall wall : walls) {

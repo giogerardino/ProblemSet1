@@ -1,7 +1,10 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 class Canvas extends JPanel {
     final int width = 1280;
@@ -52,10 +55,11 @@ class Canvas extends JPanel {
     }
 
     private void updateParticles(double deltaTime) {
-        physicsThreadPool.submit(() -> particles.parallelStream().forEach(particle -> {
+        physicsThreadPool.invokeAll(particles.stream().map(particle -> (Callable<Void>)() -> {
             particle.updatePosition(deltaTime);
             particle.handleWallCollision(width, height, walls);
-        })).join();
+            return null;
+        }).collect(Collectors.toList()));
     }
 
     @Override
@@ -68,20 +72,27 @@ class Canvas extends JPanel {
         g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, width, height);
 
-        // Load balancing for rendering particles
-        renderingThreadPool.submit(() -> particles.parallelStream().forEach(particle -> {
-            int drawY = height - particle.y - 5; // Adjust for inverted y-coordinate
+        // Split the canvas into smaller regions
+//        int numThreads = Runtime.getRuntime().availableProcessors(); // Get the number of available processors
+        int numThreads = 12; // 12 logical cores ## ADJUST ACCORDING TO NUMBER OF LOGICAL CORES
+        int regionHeight = height / numThreads;
 
-            // Set the particle color to white
-            g2d.setColor(Color.WHITE);
-            g2d.fillOval(particle.x, drawY, 5, 5);
-        })).join();
+        List<Callable<Void>> renderingTasks = new ArrayList<>(); // Use java.util.List here
 
-        for (Wall wall : walls) {
-            g2d.setColor(Color.YELLOW);
-            g2d.drawLine(wall.startX, height - wall.startY, wall.endX, height - wall.endY);
+        // Create rendering tasks for each thread
+        for (int i = 0; i < numThreads; i++) {
+            final int startY = i * regionHeight;
+            final int endY = (i == numThreads - 1) ? height : (i + 1) * regionHeight;
+            renderingTasks.add(() -> {
+                renderRegion(g2d, startY, endY);
+                return null;
+            });
         }
 
+        // Invoke all rendering tasks in parallel
+        renderingThreadPool.invokeAll(renderingTasks);
+
+        // Dispose of the graphics object
         g2d.dispose();
         g.drawImage(offscreenImage, 0, 0, this);
 
@@ -90,6 +101,17 @@ class Canvas extends JPanel {
         g.drawRect(0, 0, width, height); // Draw border around the 1280x720 area
 
         updateFPS();
+    }
+
+    private void renderRegion(Graphics2D g, int startY, int endY) {
+        for (Particle particle : particles) {
+            int drawY = height - particle.y - 5; // Adjust for inverted y-coordinate
+            if (drawY >= startY && drawY < endY) {
+                // Set the particle color to white
+                g.setColor(Color.WHITE);
+                g.fillOval(particle.x, drawY, 5, 5);
+            }
+        }
     }
 
     private void updateFPS() {
