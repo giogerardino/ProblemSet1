@@ -18,7 +18,7 @@ public class Simulator {
         frame.add(canvas, BorderLayout.CENTER);
         frame.add(scrollPane, BorderLayout.SOUTH);
 
-        frame.setSize(1450, 900); // Set the initial frame size
+        frame.setSize(1280, 860); // Set the initial frame size
         frame.setResizable(false); // Disable frame resizing
         frame.setVisible(true);
 
@@ -36,7 +36,7 @@ public class Simulator {
         JLabel fpsLabel = new JLabel("              0.00              ");
 
         Border roundedBorder = BorderFactory.createLineBorder(Color.BLACK, 2, true);
-        TitledBorder titleBorder = new TitledBorder(roundedBorder, " Frames Per Second ", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION);
+        TitledBorder titleBorder = new TitledBorder(roundedBorder, " FPS ", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION);
         Font titleFont = titleBorder.getTitleFont();
         titleBorder.setTitleFont(titleFont.deriveFont(titleFont.getSize() + 4)); // Increase the font size (adjust as needed)
 
@@ -76,7 +76,7 @@ public class Simulator {
     private static JScrollPane createScrollPane(JPanel inputPanel) {
         JScrollPane scrollPane = new JScrollPane(inputPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setPreferredSize(new Dimension(1000, 83));
+        scrollPane.setPreferredSize(new Dimension(1000, 110));
         scrollPane.setMaximumSize(new Dimension(1280, Integer.MAX_VALUE));
         return scrollPane;
     }
@@ -90,7 +90,7 @@ public class Simulator {
 
     private static JTextField createLabeledTextField(JPanel panel, String labelText, String textFieldText) {
         JPanel fieldPanel = new JPanel();
-        fieldPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0)); // Adjust the margins as needed
+        fieldPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 3, 0)); // Adjust the margins as needed
         JLabel label = new JLabel(labelText);
         JTextField textField = new JTextField(9);
         textField.setText(textFieldText);
@@ -155,6 +155,8 @@ public class Simulator {
             }
         });
         case1Panel.add(addButton);
+        // Add a small margin after the button
+        case1Panel.setBorder(BorderFactory.createCompoundBorder(case1Panel.getBorder(), BorderFactory.createEmptyBorder(0, 0, 10, 0)));
         panel.add(case1Panel);
     }
 
@@ -170,7 +172,7 @@ public class Simulator {
         case2Panel.setBorder(titleBorder);
 
         // Add centered text
-        JLabel caseText = new JLabel("Case 2: Varying Angles");
+        JLabel caseText = new JLabel("Case 2: Different Angles");
         caseText.setHorizontalAlignment(SwingConstants.CENTER);
         case2Panel.add(caseText);
 
@@ -207,6 +209,7 @@ public class Simulator {
             }
         });
         case2Panel.add(addAngleButton);
+        case2Panel.setBorder(BorderFactory.createCompoundBorder(case2Panel.getBorder(), BorderFactory.createEmptyBorder(0, 0, 10, 0)));
         panel.add(case2Panel);
     }
 
@@ -222,7 +225,7 @@ public class Simulator {
         case3Panel.setBorder(titleBorder);
 
         // Add centered text
-        JLabel caseText = new JLabel("Case 3: Varying Velocities");
+        JLabel caseText = new JLabel("Case 3: Different Velocities");
         caseText.setHorizontalAlignment(SwingConstants.CENTER);
         case3Panel.add(caseText);
 
@@ -259,6 +262,7 @@ public class Simulator {
             }
         });
         case3Panel.add(addVelocityButton);
+        case3Panel.setBorder(BorderFactory.createCompoundBorder(case3Panel.getBorder(), BorderFactory.createEmptyBorder(0, 0, 10, 0)));
         panel.add(case3Panel);
     }
 
@@ -277,6 +281,11 @@ public class Simulator {
         JTextField y1Field = createLabeledTextField(addWallPanel, "Y1:", "");
         JTextField x2Field = createLabeledTextField(addWallPanel, "X2:", "");
         JTextField y2Field = createLabeledTextField(addWallPanel, "Y2:", "");
+
+        // Create a Box to center the button
+        Box centerBox = Box.createHorizontalBox();
+        centerBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         JButton addWallButton = new JButton("Add Wall");
         addWallButton.addActionListener(e -> {
             try {
@@ -297,7 +306,13 @@ public class Simulator {
                 JOptionPane.showMessageDialog(panel, ex.getMessage());
             }
         });
-        addWallPanel.add(addWallButton);
+
+        centerBox.add(addWallButton);
+
+        addWallPanel.add(centerBox);
+
+        // Add a small margin after the button
+        addWallPanel.setBorder(BorderFactory.createCompoundBorder(addWallPanel.getBorder(), BorderFactory.createEmptyBorder(0, 0, 10, 0)));
         panel.add(addWallPanel);
     }
 
