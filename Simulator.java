@@ -18,7 +18,7 @@ public class Simulator {
         frame.add(canvas, BorderLayout.CENTER);
         frame.add(scrollPane, BorderLayout.SOUTH);
 
-        frame.setSize(1280, 830); // Set the initial frame size
+        frame.setSize(1450, 900); // Set the initial frame size
         frame.setResizable(false); // Disable frame resizing
         frame.setVisible(true);
 

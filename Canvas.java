@@ -70,16 +70,16 @@ class Canvas extends JPanel {
 
         // Load balancing for rendering particles
         renderingThreadPool.submit(() -> particles.parallelStream().forEach(particle -> {
-            int drawY = height - particle.position.y - 5;
+            int drawY = height - particle.y - 5; // Adjust for inverted y-coordinate
 
             // Set the particle color to white
             g2d.setColor(Color.WHITE);
-            g2d.fillOval(particle.position.x, drawY, 5, 5);
+            g2d.fillOval(particle.x, drawY, 5, 5);
         })).join();
-        
+
         for (Wall wall : walls) {
-            g2d.setColor(Color.BLUE);
-            g2d.drawLine(wall.start.x, height - wall.start.y, wall.end.x, height - wall.end.y);
+            g2d.setColor(Color.WHITE);
+            g2d.drawLine(wall.startX, height - wall.startY, wall.endX, height - wall.endY);
         }
 
         g2d.dispose();

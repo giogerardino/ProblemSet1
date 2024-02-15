@@ -1,15 +1,16 @@
-import java.awt.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 class Particle {
-    Point position; // Utilize Point for x and y coordinates
+    int x; // x-coordinate
+    int y; // y-coordinate
     double angle; // In degrees
     double velocity; // Pixels per second
     double accumulatedX = 0.0; // Accumulated movement in X
     double accumulatedY = 0.0; // Accumulated movement in Y
 
     public Particle(int x, int y, double angle, double velocity) {
-        this.position = new Point(x, y);
+        this.x = x;
+        this.y = y;
         this.angle = angle;
         this.velocity = velocity;
     }
@@ -29,12 +30,12 @@ class Particle {
 
         // Update position when accumulated movement exceeds 1 pixel
         if (Math.abs(accumulatedX) >= 1.0 || Math.abs(accumulatedY) >= 1.0) {
-            this.position.x += (int)Math.round(accumulatedX);
-            this.position.y += (int)Math.round(accumulatedY);
+            this.x += (int) Math.round(accumulatedX);
+            this.y += (int) Math.round(accumulatedY);
 
             // Reset accumulated movement after applying position change
-            accumulatedX -= (int)Math.round(accumulatedX);
-            accumulatedY -= (int)Math.round(accumulatedY);
+            accumulatedX -= (int) Math.round(accumulatedX);
+            accumulatedY -= (int) Math.round(accumulatedY);
         }
     }
 
@@ -42,20 +43,20 @@ class Particle {
         int particleDiameter = 5;
         int buffer = 1; // A small buffer to prevent sticking to the wall
 
-        if (position.x <= 0) {
+        if (x <= 0) {
             angle = 180 - angle;
-            position.x = buffer; // Move particle slightly inside to prevent sticking
-        } else if (position.x + particleDiameter >= canvasWidth) {
+            x = buffer; // Move particle slightly inside to prevent sticking
+        } else if (x + particleDiameter >= canvasWidth) {
             angle = 180 - angle;
-            position.x = canvasWidth - particleDiameter - buffer;
+            x = canvasWidth - particleDiameter - buffer;
         }
 
-        if (position.y + particleDiameter >= canvasHeight) {
+        if (y + particleDiameter >= canvasHeight) {
             angle = -angle;
-            position.y = canvasHeight - particleDiameter - buffer;
-        } else if (position.y <= 0) {
+            y = canvasHeight - particleDiameter - buffer;
+        } else if (y <= 0) {
             angle = -angle;
-            position.y = buffer;
+            y = buffer;
         }
 
         // Handle wall collisions
@@ -72,18 +73,18 @@ class Particle {
 
     private boolean checkCollisionWithWall(Wall wall) {
         // Current position
-        double x1 = position.x;
-        double y1 = position.y;
+        double x1 = x;
+        double y1 = y;
 
         // Predicted next position based on current velocity and angle
         double x2 = x1 + velocity * Math.cos(Math.toRadians(angle)) * (1 / 60.0); // Assuming frame rate of 60 FPS for deltaTime
         double y2 = y1 + velocity * Math.sin(Math.toRadians(angle)) * (1 / 60.0);
 
         // Wall start and end points
-        double x3 = wall.start.x;
-        double y3 = wall.start.y;
-        double x4 = wall.end.x;
-        double y4 = wall.end.y;
+        double x3 = wall.startX;
+        double y3 = wall.startY;
+        double x4 = wall.endX;
+        double y4 = wall.endY;
 
         // Calculate denominators for the line intersection formula
         double den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
@@ -99,15 +100,14 @@ class Particle {
         return t >= 0 && t <= 1 && u >= 0 && u <= 1;
     }
 
-
     private void reflectOffWall(Wall wall) {
         // Calculate the incident vector components
         double incidentX = Math.cos(Math.toRadians(angle));
         double incidentY = Math.sin(Math.toRadians(angle));
 
         // Calculate wall's normal vector
-        double wallDx = wall.end.x - wall.start.x;
-        double wallDy = wall.end.y - wall.start.y;
+        double wallDx = wall.endX - wall.startX;
+        double wallDy = wall.endY - wall.startY;
         // Rotate 90 degrees to get the normal: (dy, -dx)
         double normalX = wallDy;
         double normalY = -wallDx;
