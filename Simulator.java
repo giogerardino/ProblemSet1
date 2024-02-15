@@ -14,18 +14,12 @@ public class Simulator {
         Canvas canvas = new Canvas(fpsLabel);
         JPanel inputPanel = createInputPanel(fpsLabel, canvas);
 
-        // Create a panel for the canvas
-        JPanel canvasPanel = new JPanel(new BorderLayout());
-        canvasPanel.add(canvas, BorderLayout.CENTER);
+        JScrollPane scrollPane = createScrollPane(inputPanel);
+        frame.add(canvas, BorderLayout.CENTER);
+        frame.add(scrollPane, BorderLayout.SOUTH);
 
-        // Create a split pane to divide the frame into two areas
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, canvasPanel, inputPanel);
-        splitPane.setResizeWeight(1.0); // Ensure the input panel takes all the extra space
-        splitPane.setDividerSize(0); // Hide the divider
-        frame.add(splitPane, BorderLayout.CENTER);
-
-        frame.setSize(1280, 720); // Set the initial frame size
-        frame.setResizable(true); // Disable frame resizing
+        frame.setSize(1280, 830); // Set the initial frame size
+        frame.setResizable(false); // Disable frame resizing
         frame.setVisible(true);
 
         canvas.startSimulation();
@@ -82,8 +76,8 @@ public class Simulator {
     private static JScrollPane createScrollPane(JPanel inputPanel) {
         JScrollPane scrollPane = new JScrollPane(inputPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setPreferredSize(new Dimension(1280, 100)); // Set the preferred size of the scroll pane
-        scrollPane.setMaximumSize(new Dimension(1280, 720)); // Set the maximum size to ensure the canvas remains visible
+        scrollPane.setPreferredSize(new Dimension(1000, 83));
+        scrollPane.setMaximumSize(new Dimension(1280, Integer.MAX_VALUE));
         return scrollPane;
     }
 
