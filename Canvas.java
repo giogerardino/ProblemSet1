@@ -132,16 +132,22 @@ class Canvas extends JPanel {
      * distance between the given start and end points.
      */
     public void addParticlesCase1(int n, int startX, int startY, int endX, int endY, double angle, double velocity) {
-        if (n <= 0) return; // No particles to add
+        if (n <= 0) return; // no particles to add
+
+        // add a single particle at the start point if only one particle is requested
         if (n == 1) {
-            // Add a single particle at the start point
             addParticle(new Particle(startX, startY, angle, velocity));
             return;
         }
+
+        // calculate the increment for x and y coordinates
+        double deltaX = (double) (endX - startX) / (n - 1);
+        double deltaY = (double) (endY - startY) / (n - 1);
+
+        // Add particles at evenly spaced intervals along the line segment
         for (int i = 0; i < n; i++) {
-            double ratio = (double) i / (n - 1);
-            int x = startX + (int) ((endX - startX) * ratio);
-            int y = startY + (int) ((endY - startY) * ratio);
+            int x = (int) (startX + i * deltaX);
+            int y = (int) (startY + i * deltaY);
             addParticle(new Particle(x, y, angle, velocity));
         }
     }
@@ -155,13 +161,15 @@ class Canvas extends JPanel {
     public void addParticlesCase2(int n, int startX, int startY, double startAngle, double endAngle, double velocity) {
         if (n <= 1) {
             addParticle(new Particle(startX, startY, startAngle, velocity));
-            return;
-        }
-
-        for (int i = 0; i < n; i++) {
+        } else {
+            // calculate the angle increment
             double angleIncrement = (endAngle - startAngle) / (n - 1);
-            double angle = startAngle + (angleIncrement * i);
-            addParticle(new Particle(startX, startY, angle, velocity));
+
+            // Add particles with incremented angles
+            for (int i = 0; i < n; i++) {
+                double angle = startAngle + (angleIncrement * i);
+                addParticle(new Particle(startX, startY, angle, velocity));
+            }
         }
     }
 
@@ -172,15 +180,16 @@ class Canvas extends JPanel {
      * difference between the given start and end velocities.
      */
     public void addParticlesCase3(int n, int startX, int startY, double angle, double startVelocity, double endVelocity) {
-        if (n <= 1) {
-            addParticle(new Particle(startX, startY, angle, startVelocity));
-            return;
-        }
-
-        for (int i = 0; i < n; i++) {
+        if (n > 1) { // calculate the velocity increment
             double velocityIncrement = (endVelocity - startVelocity) / (n - 1);
-            double velocity = startVelocity + (velocityIncrement * i);
-            addParticle(new Particle(startX, startY, angle, velocity));
+
+            // Add particles with incremented velocities
+            for (int i = 0; i < n; i++) {
+                double velocity = startVelocity + (velocityIncrement * i);
+                addParticle(new Particle(startX, startY, angle, velocity));
+            }
+        } else {
+            addParticle(new Particle(startX, startY, angle, startVelocity));
         }
     }
 }
