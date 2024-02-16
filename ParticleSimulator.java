@@ -150,18 +150,18 @@ public class ParticleSimulator {
                 int y2 = Integer.parseInt(t[4].getText());
                 double angle = Double.parseDouble(t[6].getText());
                 double velocity = Double.parseDouble(t[5].getText());
-    
+   
                 // Validate number of particles
-                if (n < 1) throw new IllegalArgumentException("Number of particles must be at least 1.");
+                if (n < 1) throw new IllegalArgumentException("There must be at least 1 particle.");
     
                 // Validate x and y ranges
                 if (x1 < 0 || x1 > 1280 || x2 < 0 || x2 > 1280 || y1 < 0 || y1 > 720 || y2 < 0 || y2 > 720) {
-                    throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
+                    throw new IllegalArgumentException("Ensure that X falls within the range of 0 to 1280, and Y falls within the range of 0 to 720.");
                 }
     
                 c.particlesCase1(n, x1, y1, x2, y2, angle, velocity);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(p, "Invalid input. Please enter valid numbers.");
+                JOptionPane.showMessageDialog(p, "Input is invalid. Please provide valid numerical values.");
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(p, ex.getMessage());
             }
@@ -182,16 +182,16 @@ public class ParticleSimulator {
                 double velocity = Double.parseDouble(t[5].getText());
     
                 // Validate number of particles
-                if (n < 1) throw new IllegalArgumentException("Number of particles must be at least 1.");
+                if (n < 1) throw new IllegalArgumentException("There must be at least 1 particle.");
     
                 // Validate x and y ranges
                 if (x < 0 || x > 1280 || y < 0 || y > 720) {
-                    throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
+                    throw new IllegalArgumentException("Ensure that X falls within the range of 0 to 1280, and Y falls within the range of 0 to 720.");
                 }
     
                 c.particlesCase2(n, x, y, startAngle, endAngle, velocity);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(p, "Invalid input. Please enter valid numbers.");
+                JOptionPane.showMessageDialog(p, "Input is invalid. Please provide valid numerical values.");
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(p, ex.getMessage());
             }
@@ -212,16 +212,16 @@ public class ParticleSimulator {
                 double angle = Double.parseDouble(t[5].getText());
     
                 // Validate number of particles
-                if (n < 1) throw new IllegalArgumentException("Number of particles must be at least 1.");
+                if (n < 1) throw new IllegalArgumentException("There must be at least 1 particle.");
     
                 // Validate x and y ranges
                 if (x < 0 || x > 1280 || y < 0 || y > 720) {
-                    throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
+                    throw new IllegalArgumentException("Ensure that X falls within the range of 0 to 1280, and Y falls within the range of 0 to 720.");
                 }
     
                 c.particlesCase3(n, x, y, angle, startVelocity, endVelocity);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(p, "Invalid input. Please enter valid numbers.");
+                JOptionPane.showMessageDialog(p, "Input is invalid. Please provide valid numerical values.");
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(p, ex.getMessage());
             }
@@ -258,7 +258,7 @@ public class ParticleSimulator {
 
                 // Validate x and y ranges for walls
                 if (x1 < 0 || x1 > 1280 || x2 < 0 || x2 > 1280 || y1 < 0 || y1 > 720 || y2 < 0 || y2 > 720) {
-                    throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
+                    throw new IllegalArgumentException("Ensure that X falls within the range of 0 to 1280, and Y falls within the range of 0 to 720.");
                 }
 
                 canvas.addWall(new Wall(x1, y1, x2, y2));
