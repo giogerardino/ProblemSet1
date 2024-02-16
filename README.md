@@ -47,7 +47,7 @@ The user interface consists of the following components:
 - **Particle Input Panels**: Input panels for creating particles with different behaviors.
 - **Wall Input Panel**: Input panel for adding walls to the simulation.
 
-## Note
+### Note
 
 - The default frame size is set to 1300x1000. Adjusting the resolution for smaller screens might be necessary.
 
