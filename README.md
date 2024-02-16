@@ -1,6 +1,6 @@
 # Particle Simulator
 
-This program simulates the movement of particles within a canvas, allowing you to add particles and walls to observe their interactions.
+This project involves the development of a particle simulation application on a canvas, integrating threading and load balancing techniques with the help of some Java built-in functionalities.
 
 ## Members
 - Gabriel Angelo M. Gerardino
@@ -13,7 +13,7 @@ This program simulates the movement of particles within a canvas, allowing you t
 To run the simulator, follow these steps:
 
 1. Open a terminal or command prompt.
-2. Navigate to the directory containing the `Simulator.java` file.
+2. Navigate to the directory containing the `ParticleSimulator.java` file.
 3. Compile the Java source code using the following commands:
 
     ```bash
