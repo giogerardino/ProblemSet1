@@ -1,5 +1,11 @@
-```java
-class Particle {
+/**
+ * STDISCM S11
+ * Gabriel Angelo M. Gerardino
+ * Jaira Millicent M. Santos
+ */
+
+ import java.util.concurrent.CopyOnWriteArrayList;
+ class Particle {
     // Coordinates
     int x; // x-coordinate
     int y; // y-coordinate
@@ -232,4 +238,3 @@ class Particle {
         return Math.toDegrees(Math.atan2(y, x));
     }
 }
-```
