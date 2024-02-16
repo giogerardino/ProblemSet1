@@ -10,6 +10,7 @@
     int x2;
     int y2;
 
+    // Constructor to initialize wall
     public Wall(int initX, int initY, int finalX, int finalY) {
         this.x1 = initX;
         this.y1 = initY;

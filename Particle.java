@@ -1,11 +1,4 @@
-/**
- * STDISCM S11
- * Gabriel Angelo M. Gerardino
- * Jaira Millicent M. Santos
- */
-
- import java.util.concurrent.CopyOnWriteArrayList;
-
+```java
 class Particle {
     // Coordinates
     int x; // x-coordinate
@@ -19,6 +12,7 @@ class Particle {
     double cumulativeShiftX = 0.0; 
     double cumulativeShiftY = 0.0; 
 
+    // Constructor to initialize particle properties
     public Particle(int initialX, int initialY, double initialAngle, double initialVelocity) {
         x = initialX;
         y = initialY;
@@ -26,7 +20,7 @@ class Particle {
         currentVelocity = initialVelocity;
     }
 
-    // updates the particle's position based on its velocity and angle
+    // Updates the particle's position based on its velocity and angle
     public void updatePosition(double deltaTime) {
         double radians = Math.toRadians(currentAngle);
 
@@ -37,43 +31,50 @@ class Particle {
         updatePositionIfExceededOnePixel();
     }
 
+    // Calculates the change in x-coordinate based on velocity and angle
     private double calculateDeltaX(double deltaTime, double radians) {
         return currentVelocity * Math.cos(radians) * deltaTime;
     }
 
+    // Calculates the change in y-coordinate based on velocity and angle
     private double calculateDeltaY(double deltaTime, double radians) {
         return currentVelocity * Math.sin(radians) * deltaTime;
     }
 
+    // Accumulates the movement for smoother updates
     private void accumulateMovement(double deltaMoveX, double deltaMoveY) {
         cumulativeShiftX += deltaMoveX;
         cumulativeShiftY += deltaMoveY;
     }
 
+    // Updates the position if movement exceeds one pixel
     private void updatePositionIfExceededOnePixel() {
         if (movementExceededOnePixel()) {
-            x += roundAndResetcumulativeShiftX();
-            y += roundAndResetcumulativeShiftY();
+            x += roundAndResetCumulativeShiftX();
+            y += roundAndResetCumulativeShiftY();
         }
     }
 
+    // Checks if the movement exceeds one pixel
     private boolean movementExceededOnePixel() {
         return Math.abs(cumulativeShiftX) >= 1.0 || Math.abs(cumulativeShiftY) >= 1.0;
     }
 
-    private int roundAndResetcumulativeShiftX() {
+    // Rounds and resets the cumulative shift for x-coordinate
+    private int roundAndResetCumulativeShiftX() {
         int roundedX = (int) Math.round(cumulativeShiftX);
         cumulativeShiftX -= roundedX;
         return roundedX;
     }
 
-    private int roundAndResetcumulativeShiftY() {
+    // Rounds and resets the cumulative shift for y-coordinate
+    private int roundAndResetCumulativeShiftY() {
         int roundedY = (int) Math.round(cumulativeShiftY);
         cumulativeShiftY -= roundedY;
         return roundedY;
     }
 
-    // handles wall collision and update particle's position and angle
+    // Handles wall collision and updates particle's position and angle
     public void handleWallCollision(int canvasWidth, int canvasHeight, CopyOnWriteArrayList<Wall> walls) {
         int particleDiameter = 5;
         int buffer = 1;
@@ -84,6 +85,7 @@ class Particle {
         normalizeAngle();
     }
 
+    // Handles collision with canvas boundaries
     private void handleCanvasCollision(int canvasWidth, int canvasHeight, int diameter, int buffer) {
         if (x - cumulativeShiftX <= 0 || x + diameter + cumulativeShiftX >= canvasWidth) {
             reflectOffVerticalWall();
@@ -95,6 +97,8 @@ class Particle {
             moveInsideCanvas(canvasHeight, diameter, buffer);
         }
     }
+
+    // Moves the particle inside the canvas boundaries
     private void moveInsideCanvas(int canvasHeight, int diameter, int buffer) {
         int canvasWidth = 1280;
         if (x <= 0) {
@@ -110,14 +114,17 @@ class Particle {
         }
     }
 
+    // Reflects off a vertical wall
     private void reflectOffVerticalWall() {
         currentAngle = 180 - currentAngle;
     }
 
+    // Reflects off a horizontal wall
     private void reflectOffHorizontalWall() {
         currentAngle = -currentAngle;
     }
 
+    // Handles collisions with walls
     private void handleWallCollisions(CopyOnWriteArrayList<Wall> walls) {
         for (Wall wall : walls) {
             if (checkCollisionWithWall(wall)) {
@@ -126,11 +133,13 @@ class Particle {
         }
     }
 
+    // Normalizes the angle to be within [0, 360) degrees
     private void normalizeAngle() {
         if (currentAngle < 0) currentAngle += 360;
         else if (currentAngle >= 360) currentAngle -= 360;
     }
 
+    // Checks collision with a wall
     private boolean checkCollisionWithWall(Wall wall) {
         double x1 = x;
         double y1 = y;
@@ -154,24 +163,29 @@ class Particle {
         return isIntersectionWithinSegments(t, u);
     }
 
+    // Calculates the denominator for collision detection
     private double calculateDenominator(double x1, double y1, double x2, double y2,
                                         double x3, double y3, double x4, double y4) {
         return (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
     }
 
+    // Calculates parameter t for collision detection
     private double calculateParameterT(double x1, double y1, double x3, double y3, double x4, double y4, double denominator) {
         return ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
     }
 
+    // Calculates parameter u for collision detection
     private double calculateParameterU(double x1, double y1, double x2, double y2,
                                        double x3, double y3, double denominator) {
         return ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
     }
 
+    // Checks if the intersection point is within the line segments
     private boolean isIntersectionWithinSegments(double t, double u) {
         return t >= 0 && t <= 1 && u >= 0 && u <= 1;
     }
 
+    // Reflects off a wall based on the normal vector
     private void reflectOffWall(Wall wall) {
         double incomingVectorX = Math.cos(Math.toRadians(currentAngle));
         double incomingVectorY = Math.sin(Math.toRadians(currentAngle));
@@ -184,6 +198,7 @@ class Particle {
         normalizeAngle();
     }
 
+    // Calculates the normal vector of a wall
     private double[] calculateWallNormalVector(Wall wall) {
         double wallDx = wall.x2 - wall.x1;
         double wallDy = wall.y2 - wall.y1;
@@ -193,10 +208,12 @@ class Particle {
         return normalizeVector(normalX, normalY);
     }
 
+    // Calculates the dot product of two vectors
     private double calculateDotProduct(double incomingVectorX, double incomingVectorY, double normalX, double normalY) {
         return incomingVectorX * normalX + incomingVectorY * normalY;
     }
 
+    // Calculates the reflected vector based on the incoming vector, normal vector, and dot product
     private double[] calculateReflectedVector(double incomingVectorX, double incomingVectorY, double[] normalVector, double dotProduct) {
         return new double[]{
                 incomingVectorX - 2 * dotProduct * normalVector[0],
@@ -204,12 +221,15 @@ class Particle {
         };
     }
 
+    // Normalizes a vector to have unit length
     private double[] normalizeVector(double x, double y) {
         double length = Math.sqrt(x * x + y * y);
         return new double[]{x / length, y / length};
     }
 
+    // Calculates the angle (in degrees) from a vector
     private double calculateAngleFromVector(double x, double y) {
         return Math.toDegrees(Math.atan2(y, x));
     }
 }
+```
