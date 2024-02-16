@@ -25,8 +25,18 @@ To run the simulator, follow these steps:
     ```bash
     java ParticleSimulator
     ```
+    
 
 The main window of the application will appear, displaying the canvas for particle movement and various input panels for particle and wall creation.
+
+## Run using the JAR file
+
+Note: This JAR file was built using jdk 21. Make that your is ```java version "21.0.2" 2024-01-16 LTS```
+
+Run this line via cmd in the directory of the JAR file: 
+```bash
+java -jar ParticleSimulator.jar
+```
 
 ## User Interface
 
