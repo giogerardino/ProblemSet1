@@ -17,13 +17,13 @@ To run the simulator, follow these steps:
 3. Compile the Java source code using the following commands:
 
     ```bash
-    javac Simulator.java
+    javac ParticleSimulator.java
     ```
 
 4. Run the compiled program with:
 
     ```bash
-    java Simulator
+    java ParticleSimulator
     ```
 
 The main window of the application will appear, displaying the canvas for particle movement and various input panels for particle and wall creation.

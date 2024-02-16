@@ -1,4 +1,10 @@
-import java.util.concurrent.CopyOnWriteArrayList;
+/**
+ * STDISCM S11
+ * Gabriel Angelo M. Gerardino
+ * Jaira Millicent M. Santos
+ */
+
+ import java.util.concurrent.CopyOnWriteArrayList;
 
 class Particle {
     // Coordinates

@@ -1,4 +1,10 @@
-class Wall {
+/**
+ * STDISCM S11
+ * Gabriel Angelo M. Gerardino
+ * Jaira Millicent M. Santos
+ */
+
+ class Wall {
     int x1;
     int y1;
     int x2;

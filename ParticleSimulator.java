@@ -1,10 +1,16 @@
+/**
+ * STDISCM S11
+ * Gabriel Angelo M. Gerardino
+ * Jaira Millicent M. Santos
+ */
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-public class Simulator {
+public class ParticleSimulator {
     public static void main(String[] args) {
         JFrame frame = createAndConfigureFrame();
 

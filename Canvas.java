@@ -1,3 +1,9 @@
+/**
+ * STDISCM S11
+ * Gabriel Angelo M. Gerardino
+ * Jaira Millicent M. Santos
+ */
+
 import java.awt.*;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
