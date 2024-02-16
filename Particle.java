@@ -1,12 +1,17 @@
 import java.util.concurrent.CopyOnWriteArrayList;
 
 class Particle {
+    // Coordinates
     int x; // x-coordinate
     int y; // y-coordinate
-    double currentAngle; // In degrees
-    double currentVelocity; // Pixels per second
-    double accumulatedX = 0.0; // Accumulated movement in X
-    double accumulatedY = 0.0; // Accumulated movement in Y
+
+    // Angle (degrees) and velocity (pixels / s)
+    double currentAngle; 
+    double currentVelocity; 
+
+    // Cumulative shifts
+    double cumulativeShiftX = 0.0; 
+    double cumulativeShiftY = 0.0; 
 
     public Particle(int initialX, int initialY, double initialAngle, double initialVelocity) {
         x = initialX;
@@ -35,30 +40,30 @@ class Particle {
     }
 
     private void accumulateMovement(double deltaMoveX, double deltaMoveY) {
-        accumulatedX += deltaMoveX;
-        accumulatedY += deltaMoveY;
+        cumulativeShiftX += deltaMoveX;
+        cumulativeShiftY += deltaMoveY;
     }
 
     private void updatePositionIfExceededOnePixel() {
         if (movementExceededOnePixel()) {
-            x += roundAndResetAccumulatedX();
-            y += roundAndResetAccumulatedY();
+            x += roundAndResetcumulativeShiftX();
+            y += roundAndResetcumulativeShiftY();
         }
     }
 
     private boolean movementExceededOnePixel() {
-        return Math.abs(accumulatedX) >= 1.0 || Math.abs(accumulatedY) >= 1.0;
+        return Math.abs(cumulativeShiftX) >= 1.0 || Math.abs(cumulativeShiftY) >= 1.0;
     }
 
-    private int roundAndResetAccumulatedX() {
-        int roundedX = (int) Math.round(accumulatedX);
-        accumulatedX -= roundedX;
+    private int roundAndResetcumulativeShiftX() {
+        int roundedX = (int) Math.round(cumulativeShiftX);
+        cumulativeShiftX -= roundedX;
         return roundedX;
     }
 
-    private int roundAndResetAccumulatedY() {
-        int roundedY = (int) Math.round(accumulatedY);
-        accumulatedY -= roundedY;
+    private int roundAndResetcumulativeShiftY() {
+        int roundedY = (int) Math.round(cumulativeShiftY);
+        cumulativeShiftY -= roundedY;
         return roundedY;
     }
 
@@ -74,12 +79,12 @@ class Particle {
     }
 
     private void handleCanvasCollision(int canvasWidth, int canvasHeight, int diameter, int buffer) {
-        if (x - accumulatedX <= 0 || x + diameter + accumulatedX >= canvasWidth) {
+        if (x - cumulativeShiftX <= 0 || x + diameter + cumulativeShiftX >= canvasWidth) {
             reflectOffVerticalWall();
             moveInsideCanvas(canvasWidth, diameter, buffer);
         }
 
-        if (y + diameter + accumulatedY >= canvasHeight || y - accumulatedY <= 0) {
+        if (y + diameter + cumulativeShiftY >= canvasHeight || y - cumulativeShiftY <= 0) {
             reflectOffHorizontalWall();
             moveInsideCanvas(canvasHeight, diameter, buffer);
         }
@@ -162,15 +167,12 @@ class Particle {
     }
 
     private void reflectOffWall(Wall wall) {
-        double incidentX = Math.cos(Math.toRadians(currentAngle));
-        double incidentY = Math.sin(Math.toRadians(currentAngle));
+        double incomingVectorX = Math.cos(Math.toRadians(currentAngle));
+        double incomingVectorY = Math.sin(Math.toRadians(currentAngle));
 
         double[] normalVector = calculateWallNormalVector(wall);
-
-        double dotProduct = calculateDotProduct(incidentX, incidentY, normalVector[0], normalVector[1]);
-
-        double[] reflectedVector = calculateReflectedVector(incidentX, incidentY, normalVector, dotProduct);
-
+        double dotProduct = calculateDotProduct(incomingVectorX, incomingVectorY, normalVector[0], normalVector[1]);
+        double[] reflectedVector = calculateReflectedVector(incomingVectorX, incomingVectorY, normalVector, dotProduct);
         currentAngle = calculateAngleFromVector(reflectedVector[0], reflectedVector[1]);
 
         normalizeAngle();
@@ -185,14 +187,14 @@ class Particle {
         return normalizeVector(normalX, normalY);
     }
 
-    private double calculateDotProduct(double incidentX, double incidentY, double normalX, double normalY) {
-        return incidentX * normalX + incidentY * normalY;
+    private double calculateDotProduct(double incomingVectorX, double incomingVectorY, double normalX, double normalY) {
+        return incomingVectorX * normalX + incomingVectorY * normalY;
     }
 
-    private double[] calculateReflectedVector(double incidentX, double incidentY, double[] normalVector, double dotProduct) {
+    private double[] calculateReflectedVector(double incomingVectorX, double incomingVectorY, double[] normalVector, double dotProduct) {
         return new double[]{
-                incidentX - 2 * dotProduct * normalVector[0],
-                incidentY - 2 * dotProduct * normalVector[1]
+                incomingVectorX - 2 * dotProduct * normalVector[0],
+                incomingVectorY - 2 * dotProduct * normalVector[1]
         };
     }
 

@@ -99,167 +99,130 @@ public class Simulator {
         return textField;
     }
 
-    private static void createParticlesCase1Panel(JPanel panel, Canvas canvas) {
-        JPanel case1Panel = new JPanel();
-        case1Panel.setLayout(new BoxLayout(case1Panel, BoxLayout.Y_AXIS));
-
-        // Add bold title border
+    private static void createParticlesPanel(JPanel panel, Canvas canvas, String title, String[] labels, ParticleCaseHandler handler) {
+        JPanel casePanel = new JPanel();
+        casePanel.setLayout(new BoxLayout(casePanel, BoxLayout.Y_AXIS));
+    
+        // bold title border
         Border roundedBorder = BorderFactory.createLineBorder(Color.GRAY, 2, true);
         TitledBorder titleBorder = new TitledBorder(roundedBorder, "Add Particles", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION);
         Font titleFont = titleBorder.getTitleFont();
-        titleBorder.setTitleFont(titleFont.deriveFont(titleFont.getStyle() | Font.BOLD));
-        case1Panel.setBorder(titleBorder);
-
-        JLabel caseText = new JLabel("Case 1: Between Points");
+        titleBorder.setTitleFont(titleFont.deriveFont(titleFont.getStyle() | Font.BOLD)); // Make it bold
+        casePanel.setBorder(titleBorder);
+    
+        // centered text
+        JLabel caseText = new JLabel(title);
         caseText.setHorizontalAlignment(SwingConstants.CENTER);
-        case1Panel.add(caseText);
-
-        JTextField nField = createLabeledTextField(case1Panel, "Number of Particles:", "");
-        JTextField x1Field = createLabeledTextField(case1Panel, "Start Point (X):", "");
-        JTextField y1Field = createLabeledTextField(case1Panel, "Start Point (Y):", "");
-        JTextField x2Field = createLabeledTextField(case1Panel, "End Point (X):", "");
-        JTextField y2Field = createLabeledTextField(case1Panel, "End Point (Y):", "");
-        JTextField velocityField = createLabeledTextField(case1Panel, "Velocity:", "");
-        JTextField angleField = createLabeledTextField(case1Panel, "Angle:", "");
-
+        casePanel.add(caseText);
+    
+        JTextField[] textFields = new JTextField[labels.length];
+        for (int i = 0; i < labels.length; i++) {
+            textFields[i] = createLabeledTextField(casePanel, labels[i], "");
+        }
+    
         JButton addButton = new JButton("Add Particles");
-        addButton.addActionListener(e -> {
+        addButton.addActionListener(e -> handler.handle(canvas, casePanel, textFields));
+        casePanel.add(addButton);
+        casePanel.setBorder(BorderFactory.createCompoundBorder(casePanel.getBorder(), BorderFactory.createEmptyBorder(0, 0, 10, 0)));
+        panel.add(casePanel);
+    }
+    
+    private interface ParticleCaseHandler {
+        void handle(Canvas canvas, JPanel panel, JTextField[] textFields);
+    }
+    
+    private static void createParticlesCase1Panel(JPanel panel, Canvas canvas) {
+        String title = "Case 1: Between Points";
+        String[] labels = {"Number of Particles:", "Start Point (X):", "Start Point (Y):", "End Point (X):", "End Point (Y):", "Velocity:", "Angle:"};
+    
+        createParticlesPanel(panel, canvas, title, labels, (c, p, t) -> {
             try {
-                int n = Integer.parseInt(nField.getText());
-                int x1 = Integer.parseInt(x1Field.getText());
-                int y1 = Integer.parseInt(y1Field.getText());
-                int x2 = Integer.parseInt(x2Field.getText());
-                int y2 = Integer.parseInt(y2Field.getText());
-                double angle = Double.parseDouble(angleField.getText());
-                double velocity = Double.parseDouble(velocityField.getText());
-
+                int n = Integer.parseInt(t[0].getText());
+                int x1 = Integer.parseInt(t[1].getText());
+                int y1 = Integer.parseInt(t[2].getText());
+                int x2 = Integer.parseInt(t[3].getText());
+                int y2 = Integer.parseInt(t[4].getText());
+                double angle = Double.parseDouble(t[6].getText());
+                double velocity = Double.parseDouble(t[5].getText());
+    
                 // Validate number of particles
                 if (n < 1) throw new IllegalArgumentException("Number of particles must be at least 1.");
-
+    
                 // Validate x and y ranges
                 if (x1 < 0 || x1 > 1280 || x2 < 0 || x2 > 1280 || y1 < 0 || y1 > 720 || y2 < 0 || y2 > 720) {
                     throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
                 }
-
-                canvas.particlesCase1(n, x1, y1, x2, y2, angle, velocity);
+    
+                c.particlesCase1(n, x1, y1, x2, y2, angle, velocity);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(panel, "Invalid input. Please enter valid numbers.");
+                JOptionPane.showMessageDialog(p, "Invalid input. Please enter valid numbers.");
             } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(panel, ex.getMessage());
+                JOptionPane.showMessageDialog(p, ex.getMessage());
             }
         });
-        case1Panel.add(addButton);
-        case1Panel.setBorder(BorderFactory.createCompoundBorder(case1Panel.getBorder(), BorderFactory.createEmptyBorder(0, 0, 10, 0)));
-        panel.add(case1Panel);
     }
-
+    
     private static void createParticlesCase2Panel(JPanel panel, Canvas canvas) {
-        JPanel case2Panel = new JPanel();
-        case2Panel.setLayout(new BoxLayout(case2Panel, BoxLayout.Y_AXIS));
-
-        // bold title border
-        Border roundedBorder = BorderFactory.createLineBorder(Color.GRAY, 2, true);
-        TitledBorder titleBorder = new TitledBorder(roundedBorder, "Add Particles", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION);
-        Font titleFont = titleBorder.getTitleFont();
-        titleBorder.setTitleFont(titleFont.deriveFont(titleFont.getStyle() | Font.BOLD)); // Make it bold
-        case2Panel.setBorder(titleBorder);
-
-        // centered text
-        JLabel caseText = new JLabel("Case 2: Different Angles");
-        caseText.setHorizontalAlignment(SwingConstants.CENTER);
-        case2Panel.add(caseText);
-
-        JTextField nAngleField = createLabeledTextField(case2Panel, "Number of Particles:", "");
-        JTextField xField = createLabeledTextField(case2Panel, "Particle Location (X):", "");
-        JTextField yField = createLabeledTextField(case2Panel, "Particle Location (Y):", "");
-        JTextField startAngleField = createLabeledTextField(case2Panel, "Start Angle:", "");
-        JTextField endAngleField = createLabeledTextField(case2Panel, "End Angle:", "");
-        JTextField velocityAngleField = createLabeledTextField(case2Panel, "Velocity:", "");
-
-        JButton addAngleButton = new JButton("Add Particles");
-        addAngleButton.addActionListener(e -> {
+        String title = "Case 2: Different Angles";
+        String[] labels = {"Number of Particles:", "Particle Location (X):", "Particle Location (Y):", "Start Angle:", "End Angle:", "Velocity:"};
+    
+        createParticlesPanel(panel, canvas, title, labels, (c, p, t) -> {
             try {
-                int n = Integer.parseInt(nAngleField.getText());
-                double startAngle = Double.parseDouble(startAngleField.getText());
-                double endAngle = Double.parseDouble(endAngleField.getText());
-                double velocity = Double.parseDouble(velocityAngleField.getText());
-                int x = Integer.parseInt(xField.getText());
-                int y = Integer.parseInt(yField.getText());
-
+                int n = Integer.parseInt(t[0].getText());
+                int x = Integer.parseInt(t[1].getText());
+                int y = Integer.parseInt(t[2].getText());
+                double startAngle = Double.parseDouble(t[3].getText());
+                double endAngle = Double.parseDouble(t[4].getText());
+                double velocity = Double.parseDouble(t[5].getText());
+    
                 // Validate number of particles
                 if (n < 1) throw new IllegalArgumentException("Number of particles must be at least 1.");
-
+    
                 // Validate x and y ranges
                 if (x < 0 || x > 1280 || y < 0 || y > 720) {
                     throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
                 }
-
-                canvas.particlesCase2(n, x, y, startAngle, endAngle, velocity);
+    
+                c.particlesCase2(n, x, y, startAngle, endAngle, velocity);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(panel, "Invalid input. Please enter valid numbers.");
+                JOptionPane.showMessageDialog(p, "Invalid input. Please enter valid numbers.");
             } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(panel, ex.getMessage());
+                JOptionPane.showMessageDialog(p, ex.getMessage());
             }
         });
-        case2Panel.add(addAngleButton);
-        case2Panel.setBorder(BorderFactory.createCompoundBorder(case2Panel.getBorder(), BorderFactory.createEmptyBorder(0, 0, 10, 0)));
-        panel.add(case2Panel);
     }
-
+    
     private static void createParticlesCase3Panel(JPanel panel, Canvas canvas) {
-        JPanel case3Panel = new JPanel();
-        case3Panel.setLayout(new BoxLayout(case3Panel, BoxLayout.Y_AXIS));
-
-        // bold title border
-        Border roundedBorder = BorderFactory.createLineBorder(Color.GRAY, 2, true);
-        TitledBorder titleBorder = new TitledBorder(roundedBorder, "Add Particles", TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION);
-        Font titleFont = titleBorder.getTitleFont();
-        titleBorder.setTitleFont(titleFont.deriveFont(titleFont.getStyle() | Font.BOLD)); // Make it bold
-        case3Panel.setBorder(titleBorder);
-
-        // centered text
-        JLabel caseText = new JLabel("Case 3: Different Velocities");
-        caseText.setHorizontalAlignment(SwingConstants.CENTER);
-        case3Panel.add(caseText);
-
-        JTextField nVelocityField = createLabeledTextField(case3Panel, "Number of Particles:", "");
-        JTextField xVelocityField = createLabeledTextField(case3Panel, "Particle Location (X):", "");
-        JTextField yVelocityField = createLabeledTextField(case3Panel, "Particle Location (Y):", "");
-        JTextField startVelocityField = createLabeledTextField(case3Panel, "Start Velocity:", "");
-        JTextField endVelocityField = createLabeledTextField(case3Panel, "End Velocity:", "");
-        JTextField angleVelocityField = createLabeledTextField(case3Panel, "Angle:", "");
-
-        JButton addVelocityButton = new JButton("Add Particles");
-        addVelocityButton.addActionListener(e -> {
+        String title = "Case 3: Different Velocities";
+        String[] labels = {"Number of Particles:", "Particle Location (X):", "Particle Location (Y):", "Start Velocity:", "End Velocity:", "Angle:"};
+    
+        createParticlesPanel(panel, canvas, title, labels, (c, p, t) -> {
             try {
-                int n = Integer.parseInt(nVelocityField.getText());
-                double startVelocity = Double.parseDouble(startVelocityField.getText());
-                double endVelocity = Double.parseDouble(endVelocityField.getText());
-                double angle = Double.parseDouble(angleVelocityField.getText());
-                int x = Integer.parseInt(xVelocityField.getText());
-                int y = Integer.parseInt(yVelocityField.getText());
-
+                int n = Integer.parseInt(t[0].getText());
+                int x = Integer.parseInt(t[1].getText());
+                int y = Integer.parseInt(t[2].getText());
+                double startVelocity = Double.parseDouble(t[3].getText());
+                double endVelocity = Double.parseDouble(t[4].getText());
+                double angle = Double.parseDouble(t[5].getText());
+    
                 // Validate number of particles
                 if (n < 1) throw new IllegalArgumentException("Number of particles must be at least 1.");
-
+    
                 // Validate x and y ranges
                 if (x < 0 || x > 1280 || y < 0 || y > 720) {
                     throw new IllegalArgumentException("X must be between 0 and 1280, Y must be between 0 and 720.");
                 }
-
-                canvas.particlesCase3(n, x, y, angle, startVelocity, endVelocity);
+    
+                c.particlesCase3(n, x, y, angle, startVelocity, endVelocity);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(panel, "Invalid input. Please enter valid numbers.");
+                JOptionPane.showMessageDialog(p, "Invalid input. Please enter valid numbers.");
             } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(panel, ex.getMessage());
+                JOptionPane.showMessageDialog(p, ex.getMessage());
             }
         });
-        case3Panel.add(addVelocityButton);
-        case3Panel.setBorder(BorderFactory.createCompoundBorder(case3Panel.getBorder(), BorderFactory.createEmptyBorder(0, 0, 10, 0)));
-        panel.add(case3Panel);
     }
-
-    private static void createWallPanel(JPanel panel, Canvas canvas) {
+    
+        private static void createWallPanel(JPanel panel, Canvas canvas) {
         JPanel addWallPanel = new JPanel();
         addWallPanel.setLayout(new BoxLayout(addWallPanel, BoxLayout.Y_AXIS));
 
@@ -270,10 +233,10 @@ public class Simulator {
         titleBorder.setTitleFont(titleFont.deriveFont(titleFont.getStyle() | Font.BOLD)); // Make it bold
         addWallPanel.setBorder(titleBorder);
 
-        JTextField x1Field = createLabeledTextField(addWallPanel, "X1:", "");
-        JTextField y1Field = createLabeledTextField(addWallPanel, "Y1:", "");
-        JTextField x2Field = createLabeledTextField(addWallPanel, "X2:", "");
-        JTextField y2Field = createLabeledTextField(addWallPanel, "Y2:", "");
+        JTextField x1Field = createLabeledTextField(addWallPanel, "Start Point (X):", "");
+        JTextField y1Field = createLabeledTextField(addWallPanel, "Start Point (Y):", "");
+        JTextField x2Field = createLabeledTextField(addWallPanel, "End Point (X):", "");
+        JTextField y2Field = createLabeledTextField(addWallPanel, "End Point (Y):", "");
 
         // center the button
         Box centerBox = Box.createHorizontalBox();
