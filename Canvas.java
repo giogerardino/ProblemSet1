@@ -8,22 +8,26 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class Canvas extends JPanel {
-    final int width = 1280;
-    final int height = 720;
-    private final List<Particle> particles = new ArrayList<>();
-    private final CopyOnWriteArrayList<Wall> walls = new CopyOnWriteArrayList<>();
+    final int CANVAS_WIDTH = 1280;
+    final int CANVAS_HEIGHT = 720;
+    private final BufferedImage offscreenImage;
+    
     private final JLabel fps; //display FPS
     private int frameCtr = 0;
-    private long updatedFps = System.nanoTime(); // Time of the last FPS update
-    private final BufferedImage offscreenImage;
+    private long updatedFpsTime = System.nanoTime(); 
+    
     private final double timeStep = 1.0 / 240.0;
     private final long time = 1000000000 / 60; // where 1000000000 is nanoseconds and 60 is the target FPS
+    private static final long FPS_UPDATE_INTERVAL = 500_000_000L; // 500 milliseconds in nanoseconds
+
+    private final List<Particle> particles = new ArrayList<>();
+    private final CopyOnWriteArrayList<Wall> walls = new CopyOnWriteArrayList<>();
     private final Object particlesLock = new Object();
 
     public Canvas(JLabel fps) {
         this.fps = fps;
-        setPreferredSize(new Dimension(width, height));
-        offscreenImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
+        offscreenImage = new BufferedImage(CANVAS_WIDTH, CANVAS_HEIGHT, BufferedImage.TYPE_INT_ARGB);
     }
 
     public void addParticle(Particle particle) {
@@ -63,7 +67,7 @@ class Canvas extends JPanel {
                 futures.add(CompletableFuture.runAsync(() -> {
                     for (Particle particle : particleBatch) {
                         particle.updatePosition(timeStep);
-                        particle.handleWallCollision(width, height, walls);
+                        particle.handleWallCollision(CANVAS_WIDTH, CANVAS_HEIGHT, walls);
                     }
                 }));
             }
@@ -83,14 +87,14 @@ class Canvas extends JPanel {
 
         Graphics2D g2d = offscreenImage.createGraphics();
         g2d.setColor(Color.BLACK);
-        g2d.fillRect(0, 0, width, height);
+        g2d.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         // Load balancing for rendering particles
         synchronized (particlesLock) {
             AtomicInteger counter = new AtomicInteger(0);
 
             particles.parallelStream().forEach(particle -> {
-                int drawY = height - particle.y - 5;
+                int drawY = CANVAS_HEIGHT - particle.y - 5;
                 g2d.setColor(Color.WHITE);
                 g2d.fillOval(particle.x, drawY, 5, 5);
 
@@ -100,28 +104,46 @@ class Canvas extends JPanel {
 
         for (Wall wall : walls) {
             g2d.setColor(Color.YELLOW);
-            g2d.drawLine(wall.x1, height - wall.y1, wall.x2, height - wall.y2);
+            g2d.drawLine(wall.x1, CANVAS_HEIGHT - wall.y1, wall.x2, CANVAS_HEIGHT - wall.y2);
         }
 
         g2d.dispose();
         g.drawImage(offscreenImage, 0, 0, this);
 
         g.setColor(Color.BLACK);
-        g.drawRect(0, 0, width, height);
+        g.drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         updateFPS();
     }
 
     private void updateFPS() {
-        long currentTime = System.nanoTime();
+        long currTime = System.nanoTime();
         frameCtr++;
-        if ((currentTime - updatedFps) >= 500_000_000L) {
-            double elapsedTimeInSeconds = (currentTime - updatedFps) / 1_000_000_000.0;
-            double fps = frameCtr / elapsedTimeInSeconds;
-            this.fps.setText(String.format("              %.2f              ", fps));
-            frameCtr = 0;
-            updatedFps = currentTime;
+
+        long elapsedTime = currTime - updatedFpsTime;
+
+        // Check if the update interval has passed
+        if (elapsedTime >= FPS_UPDATE_INTERVAL) {
+
+            // Calculate frames per second
+            double elapsedTimeInSeconds = elapsedTime / 1_000_000_000.0;
+            double currentFPS = frameCtr / elapsedTimeInSeconds;
+
+            // Update FPS label with formatted text
+            updateFPSLabel(currentFPS);
+
+            // Reset counters and update time
+            resetCounters(currTime);
         }
+    }
+
+    private void updateFPSLabel(double fpsValue) {
+        fps.setText(String.format("              %.2f              ", fpsValue));
+    }
+
+    private void resetCounters(long currTime) {
+        frameCtr = 0;
+        updatedFpsTime = currTime;
     }
 
     /***

@@ -25,7 +25,7 @@ public class Simulator {
         frame.add(fpsLabel, BorderLayout.NORTH);
         frame.add(mainPanel, BorderLayout.CENTER);
 
-        frame.setSize(1300, 920);
+        frame.setSize(1300, 1000);
         frame.setResizable(false);
         frame.setVisible(true);
 
@@ -51,7 +51,7 @@ public class Simulator {
         fpsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         // empty border with custom insets
-        Border emptyBorder = BorderFactory.createEmptyBorder(10, 0, 10, 0);
+        Border emptyBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
 
         CompoundBorder compoundBorder = new CompoundBorder(emptyBorder, titleBorder);
 
@@ -71,7 +71,7 @@ public class Simulator {
     private static JScrollPane createScrollPane(JPanel inputPanel) {
         JScrollPane scrollPane = new JScrollPane(inputPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setPreferredSize(new Dimension(1280, 100));
+        scrollPane.setPreferredSize(new Dimension(1280, 205));
         return scrollPane;
     }
 
